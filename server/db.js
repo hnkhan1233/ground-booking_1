@@ -58,6 +58,75 @@ function initDb() {
     }
   }
 
+  try {
+    dbInstance.prepare('ALTER TABLE bookings ADD COLUMN price_at_booking REAL').run();
+  } catch (error) {
+    if (!/duplicate column/i.test(error.message)) {
+      throw error;
+    }
+  }
+
+  // Add new columns to grounds table for additional features
+  try {
+    dbInstance.prepare('ALTER TABLE grounds ADD COLUMN surface_type TEXT').run();
+  } catch (error) {
+    if (!/duplicate column/i.test(error.message)) {
+      throw error;
+    }
+  }
+
+  try {
+    dbInstance.prepare('ALTER TABLE grounds ADD COLUMN capacity INTEGER').run();
+  } catch (error) {
+    if (!/duplicate column/i.test(error.message)) {
+      throw error;
+    }
+  }
+
+  try {
+    dbInstance.prepare('ALTER TABLE grounds ADD COLUMN dimensions TEXT').run();
+  } catch (error) {
+    if (!/duplicate column/i.test(error.message)) {
+      throw error;
+    }
+  }
+
+  try {
+    dbInstance.prepare('ALTER TABLE grounds ADD COLUMN category TEXT').run();
+  } catch (error) {
+    if (!/duplicate column/i.test(error.message)) {
+      throw error;
+    }
+  }
+
+  // Create ground_images table for multiple images
+  dbInstance
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS ground_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ground_id INTEGER NOT NULL,
+        image_url TEXT NOT NULL,
+        display_order INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ground_id) REFERENCES grounds(id) ON DELETE CASCADE
+      )`
+    )
+    .run();
+
+  // Create ground_features table
+  dbInstance
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS ground_features (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ground_id INTEGER NOT NULL,
+        feature_name TEXT NOT NULL,
+        feature_value TEXT,
+        category TEXT,
+        FOREIGN KEY (ground_id) REFERENCES grounds(id) ON DELETE CASCADE
+      )`
+    )
+    .run();
+
   dbInstance
     .prepare(
       `CREATE TABLE IF NOT EXISTS user_profiles (

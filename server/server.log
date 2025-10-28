@@ -1,0 +1,6 @@
+
+> server@1.0.0 start
+> node index.js
+
+[dotenv@17.2.3] injecting env (5) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+Ground booking API listening on http://localhost:4000

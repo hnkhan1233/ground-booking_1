@@ -181,14 +181,63 @@ initDb();
 const db = getDb();
 
 app.get('/api/grounds', (req, res) => {
-  const statement = db.prepare(
-    `SELECT id, name, city, location, price_per_hour, description, image_url
-     FROM grounds
-     ORDER BY city, name`
-  );
+  const { category } = req.query;
 
-  const grounds = statement.all();
+  let query = `SELECT id, name, city, location, price_per_hour, description, image_url, surface_type, capacity, dimensions, category
+     FROM grounds`;
+
+  const params = [];
+  if (category) {
+    query += ' WHERE category = ?';
+    params.push(category);
+  }
+
+  query += ' ORDER BY city, name';
+
+  const statement = db.prepare(query);
+  const grounds = statement.all(...params);
   res.json(grounds);
+});
+
+app.get('/api/grounds/:id', (req, res) => {
+  const groundId = parseInt(req.params.id, 10);
+
+  if (isNaN(groundId)) {
+    return res.status(400).json({ error: 'Invalid ground ID.' });
+  }
+
+  // Get ground basic info
+  const ground = db.prepare(
+    `SELECT id, name, city, location, price_per_hour, description, image_url, surface_type, capacity, dimensions, category
+     FROM grounds
+     WHERE id = ?`
+  ).get(groundId);
+
+  if (!ground) {
+    return res.status(404).json({ error: 'Ground not found.' });
+  }
+
+  // Get all images for this ground
+  const images = db.prepare(
+    `SELECT id, image_url, display_order
+     FROM ground_images
+     WHERE ground_id = ?
+     ORDER BY display_order, id`
+  ).all(groundId);
+
+  // Get all features for this ground
+  const features = db.prepare(
+    `SELECT id, feature_name, feature_value, category
+     FROM ground_features
+     WHERE ground_id = ?
+     ORDER BY category, feature_name`
+  ).all(groundId);
+
+  res.json({
+    ...ground,
+    images,
+    features,
+  });
 });
 
 app.get('/api/auth/me', authenticate, (req, res) => {
@@ -275,6 +324,7 @@ app.post('/api/admin/grounds', authenticate, requireAdmin, upload.single('image'
   const description = req.body.description ? req.body.description.trim() : null;
   const imageUrlFromBody = req.body.imageUrl ? req.body.imageUrl.trim() : null;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : imageUrlFromBody;
+  const category = req.body.category ? req.body.category.trim() : null;
 
   if (!imageUrl) {
     if (req.file) {
@@ -285,8 +335,8 @@ app.post('/api/admin/grounds', authenticate, requireAdmin, upload.single('image'
 
   try {
     const statement = db.prepare(
-      `INSERT INTO grounds (name, city, location, price_per_hour, description, image_url)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO grounds (name, city, location, price_per_hour, description, image_url, category)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     );
 
     const info = statement.run(
@@ -295,17 +345,48 @@ app.post('/api/admin/grounds', authenticate, requireAdmin, upload.single('image'
       req.body.location.trim(),
       validation.numericPrice,
       description,
-      imageUrl
+      imageUrl,
+      category
     );
+
+    // Handle features if provided
+    if (req.body.features) {
+      const featuresData = typeof req.body.features === 'string'
+        ? JSON.parse(req.body.features)
+        : req.body.features;
+
+      const featureStmt = db.prepare(
+        `INSERT INTO ground_features (ground_id, feature_name, feature_value, category)
+         VALUES (?, ?, ?, ?)`
+      );
+
+      for (const feature of featuresData) {
+        featureStmt.run(
+          info.lastInsertRowid,
+          feature.name,
+          feature.value || null,
+          feature.category || null
+        );
+      }
+    }
 
     const created = db
       .prepare(
-        `SELECT id, name, city, location, price_per_hour, description, image_url
+        `SELECT id, name, city, location, price_per_hour, description, image_url, surface_type, capacity, dimensions, category
          FROM grounds WHERE id = ?`
       )
       .get(info.lastInsertRowid);
 
-    res.status(201).json(created);
+    const images = db
+      .prepare(
+        `SELECT id, image_url, display_order
+         FROM ground_images
+         WHERE ground_id = ?
+         ORDER BY display_order, id`
+      )
+      .all(info.lastInsertRowid);
+
+    res.status(201).json({ ...created, images });
   } catch (error) {
     if (req.file) {
       deleteLocalImage(`/uploads/${req.file.filename}`);
@@ -343,6 +424,10 @@ app.put('/api/admin/grounds/:groundId', authenticate, requireAdmin, upload.singl
   }
 
   const description = req.body.description ? req.body.description.trim() : null;
+  const surfaceType = req.body.surfaceType ? req.body.surfaceType.trim() : null;
+  const capacity = req.body.capacity ? parseInt(req.body.capacity, 10) : null;
+  const dimensions = req.body.dimensions ? req.body.dimensions.trim() : null;
+  const category = req.body.category ? req.body.category.trim() : null;
   const imageUrlFromBody = req.body.imageUrl ? req.body.imageUrl.trim() : null;
   const nextImageUrl = req.file
     ? `/uploads/${req.file.filename}`
@@ -358,7 +443,7 @@ app.put('/api/admin/grounds/:groundId', authenticate, requireAdmin, upload.singl
   try {
     db.prepare(
       `UPDATE grounds
-       SET name = ?, city = ?, location = ?, price_per_hour = ?, description = ?, image_url = ?
+       SET name = ?, city = ?, location = ?, price_per_hour = ?, description = ?, image_url = ?, surface_type = ?, capacity = ?, dimensions = ?, category = ?
        WHERE id = ?`
     ).run(
       req.body.name.trim(),
@@ -367,8 +452,37 @@ app.put('/api/admin/grounds/:groundId', authenticate, requireAdmin, upload.singl
       validation.numericPrice,
       description,
       nextImageUrl,
+      surfaceType,
+      capacity,
+      dimensions,
+      category,
       groundId
     );
+
+    // Handle features update if provided
+    if (req.body.features) {
+      // Delete existing features
+      db.prepare('DELETE FROM ground_features WHERE ground_id = ?').run(groundId);
+
+      // Insert new features
+      const featuresData = typeof req.body.features === 'string'
+        ? JSON.parse(req.body.features)
+        : req.body.features;
+
+      const featureStmt = db.prepare(
+        `INSERT INTO ground_features (ground_id, feature_name, feature_value, category)
+         VALUES (?, ?, ?, ?)`
+      );
+
+      for (const feature of featuresData) {
+        featureStmt.run(
+          groundId,
+          feature.name,
+          feature.value || null,
+          feature.category || null
+        );
+      }
+    }
 
     if (req.file && isLocalImage(existingGround.image_url)) {
       deleteLocalImage(existingGround.image_url);
@@ -376,12 +490,21 @@ app.put('/api/admin/grounds/:groundId', authenticate, requireAdmin, upload.singl
 
     const updated = db
       .prepare(
-        `SELECT id, name, city, location, price_per_hour, description, image_url
+        `SELECT id, name, city, location, price_per_hour, description, image_url, surface_type, capacity, dimensions, category
          FROM grounds WHERE id = ?`
       )
       .get(groundId);
 
-    res.json(updated);
+    const images = db
+      .prepare(
+        `SELECT id, image_url, display_order
+         FROM ground_images
+         WHERE ground_id = ?
+         ORDER BY display_order, id`
+      )
+      .all(groundId);
+
+    res.json({ ...updated, images });
   } catch (error) {
     if (req.file) {
       deleteLocalImage(`/uploads/${req.file.filename}`);
@@ -415,10 +538,182 @@ app.delete('/api/admin/grounds/:groundId', authenticate, requireAdmin, (req, res
       .json({ error: 'Cannot delete a ground with active bookings. Cancel them first.' });
   }
 
+  const galleryImages = db
+    .prepare('SELECT image_url FROM ground_images WHERE ground_id = ?')
+    .all(groundId);
+
   db.prepare(`DELETE FROM grounds WHERE id = ?`).run(groundId);
 
   if (isLocalImage(existingGround.image_url)) {
     deleteLocalImage(existingGround.image_url);
+  }
+
+  for (const galleryImage of galleryImages) {
+    if (isLocalImage(galleryImage.image_url)) {
+      deleteLocalImage(galleryImage.image_url);
+    }
+  }
+
+  res.json({ success: true });
+});
+
+// Ground features endpoints
+app.post('/api/admin/grounds/:groundId/features', authenticate, requireAdmin, (req, res) => {
+  const { groundId } = req.params;
+  const { featureName, featureValue, category } = req.body;
+
+  if (!featureName || !featureName.trim()) {
+    return res.status(400).json({ error: 'Feature name is required.' });
+  }
+
+  const ground = db.prepare('SELECT id FROM grounds WHERE id = ?').get(groundId);
+  if (!ground) {
+    return res.status(404).json({ error: 'Ground not found.' });
+  }
+
+  const result = db.prepare(
+    `INSERT INTO ground_features (ground_id, feature_name, feature_value, category)
+     VALUES (?, ?, ?, ?)`
+  ).run(groundId, featureName.trim(), featureValue || null, category || null);
+
+  const feature = db.prepare(
+    'SELECT id, feature_name, feature_value, category FROM ground_features WHERE id = ?'
+  ).get(result.lastInsertRowid);
+
+  res.status(201).json(feature);
+});
+
+app.delete('/api/admin/grounds/:groundId/features/:featureId', authenticate, requireAdmin, (req, res) => {
+  const { groundId, featureId } = req.params;
+
+  const feature = db.prepare(
+    'SELECT id FROM ground_features WHERE id = ? AND ground_id = ?'
+  ).get(featureId, groundId);
+
+  if (!feature) {
+    return res.status(404).json({ error: 'Feature not found.' });
+  }
+
+  db.prepare('DELETE FROM ground_features WHERE id = ?').run(featureId);
+  res.json({ success: true });
+});
+
+// Ground images endpoints
+app.post('/api/admin/grounds/:groundId/images', authenticate, requireAdmin, upload.single('image'), (req, res) => {
+  const { groundId } = req.params;
+
+  const ground = db.prepare('SELECT id FROM grounds WHERE id = ?').get(groundId);
+  if (!ground) {
+    if (req.file) {
+      deleteLocalImage(`/uploads/${req.file.filename}`);
+    }
+    return res.status(404).json({ error: 'Ground not found.' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'Image file is required.' });
+  }
+
+  const imageUrl = `/uploads/${req.file.filename}`;
+  const rawOrder = req.body.displayOrder ? parseInt(req.body.displayOrder, 10) : Number.NaN;
+  let displayOrder = Number.isInteger(rawOrder) ? rawOrder : null;
+
+  if (displayOrder === null) {
+    const { maxOrder } = db
+      .prepare('SELECT COALESCE(MAX(display_order), -1) AS maxOrder FROM ground_images WHERE ground_id = ?')
+      .get(groundId);
+    displayOrder = maxOrder + 1;
+  }
+
+  const result = db.prepare(
+    `INSERT INTO ground_images (ground_id, image_url, display_order)
+     VALUES (?, ?, ?)`
+  ).run(groundId, imageUrl, displayOrder);
+
+  const image = db.prepare(
+    'SELECT id, image_url, display_order FROM ground_images WHERE id = ?'
+  ).get(result.lastInsertRowid);
+
+  res.status(201).json(image);
+});
+
+app.put('/api/admin/grounds/:groundId/images/reorder', authenticate, requireAdmin, (req, res) => {
+  const { groundId } = req.params;
+  const order = Array.isArray(req.body?.order) ? req.body.order : null;
+
+  if (!order || order.length === 0) {
+    return res.status(400).json({ error: 'order array is required.' });
+  }
+
+  const ground = db.prepare('SELECT id FROM grounds WHERE id = ?').get(groundId);
+  if (!ground) {
+    return res.status(404).json({ error: 'Ground not found.' });
+  }
+
+  const rows = db
+    .prepare('SELECT id FROM ground_images WHERE ground_id = ? ORDER BY display_order, id')
+    .all(groundId);
+
+  if (rows.length === 0) {
+    return res.status(400).json({ error: 'No images to reorder.' });
+  }
+
+  const validIds = new Set(rows.map((row) => row.id));
+  if (order.length !== rows.length || order.some((id) => !validIds.has(id))) {
+    return res.status(400).json({ error: 'order must include every image id once.' });
+  }
+
+  const updateStmt = db.prepare('UPDATE ground_images SET display_order = ? WHERE id = ?');
+  const transaction = db.transaction((orderedIds) => {
+    orderedIds.forEach((imageId, index) => {
+      updateStmt.run(index, imageId);
+    });
+  });
+
+  transaction(order);
+
+  const updatedImages = db
+    .prepare(
+      `SELECT id, image_url, display_order
+       FROM ground_images
+       WHERE ground_id = ?
+       ORDER BY display_order, id`
+    )
+    .all(groundId);
+
+  res.json({ success: true, images: updatedImages });
+});
+
+app.delete('/api/admin/grounds/:groundId/images/:imageId', authenticate, requireAdmin, (req, res) => {
+  const { groundId, imageId } = req.params;
+
+  const image = db.prepare(
+    'SELECT id, image_url FROM ground_images WHERE id = ? AND ground_id = ?'
+  ).get(imageId, groundId);
+
+  if (!image) {
+    return res.status(404).json({ error: 'Image not found.' });
+  }
+
+  db.prepare('DELETE FROM ground_images WHERE id = ?').run(imageId);
+
+  if (isLocalImage(image.image_url)) {
+    deleteLocalImage(image.image_url);
+  }
+
+  const ground = db.prepare('SELECT image_url FROM grounds WHERE id = ?').get(groundId);
+  if (ground && ground.image_url === image.image_url) {
+    const replacement = db
+      .prepare(
+        `SELECT image_url
+         FROM ground_images
+         WHERE ground_id = ?
+         ORDER BY display_order, id
+         LIMIT 1`
+      )
+      .get(groundId);
+
+    db.prepare('UPDATE grounds SET image_url = ? WHERE id = ?').run(replacement ? replacement.image_url : null, groundId);
   }
 
   res.json({ success: true });
@@ -434,6 +729,19 @@ app.get('/api/grounds/:groundId/availability', (req, res) => {
 
   if (!isValidDate(date)) {
     return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+  }
+
+  // Check if date is in the past (Pakistani timezone - PKT = UTC+5)
+  const now = new Date();
+  const pktOffset = 5 * 60; // PKT is UTC+5
+  const pktTime = new Date(now.getTime() + (pktOffset + now.getTimezoneOffset()) * 60000);
+  const pktYear = pktTime.getFullYear();
+  const pktMonth = String(pktTime.getMonth() + 1).padStart(2, '0');
+  const pktDay = String(pktTime.getDate()).padStart(2, '0');
+  const todayPKT = `${pktYear}-${pktMonth}-${pktDay}`;
+
+  if (date < todayPKT) {
+    return res.status(400).json({ error: 'Cannot view availability for past dates.' });
   }
 
   const ground = db
@@ -454,10 +762,27 @@ app.get('/api/grounds/:groundId/availability', (req, res) => {
 
   const bookedSlots = new Set(bookings.map((booking) => booking.slot));
 
-  const availability = SLOT_TIMES.map((slot) => ({
-    slot,
-    isAvailable: !bookedSlots.has(slot),
-  }));
+  // Get current time in Pakistani timezone (PKT = UTC+5) - reuse variables from above
+  const pktHours = pktTime.getHours();
+  const pktMinutes = pktTime.getMinutes();
+
+  const isToday = date === todayPKT;
+
+  const availability = SLOT_TIMES.map((slot) => {
+    let available = !bookedSlots.has(slot);
+
+    // If it's today, check if the slot time has passed
+    if (isToday && available) {
+      const [slotHour, slotMinute] = slot.split(':').map(Number);
+
+      // Slot is unavailable if it has already started or passed
+      if (slotHour < pktHours || (slotHour === pktHours && slotMinute <= pktMinutes)) {
+        available = false;
+      }
+    }
+
+    return { slot, available };
+  });
 
   res.json({ groundId: Number(groundId), date, availability });
 });
@@ -479,6 +804,32 @@ app.post('/api/bookings', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Invalid slot selected.' });
   }
 
+  // Check if the booking is for a past time (Pakistani timezone - PKT = UTC+5)
+  const now = new Date();
+  const pktOffset = 5 * 60; // PKT is UTC+5
+  const pktTime = new Date(now.getTime() + (pktOffset + now.getTimezoneOffset()) * 60000);
+  const pktHours = pktTime.getHours();
+  const pktMinutes = pktTime.getMinutes();
+
+  const pktYear = pktTime.getFullYear();
+  const pktMonth = String(pktTime.getMonth() + 1).padStart(2, '0');
+  const pktDay = String(pktTime.getDate()).padStart(2, '0');
+  const todayPKT = `${pktYear}-${pktMonth}-${pktDay}`;
+
+  // Reject bookings for past dates
+  if (date < todayPKT) {
+    return res.status(400).json({ error: 'Cannot book dates in the past.' });
+  }
+
+  // For today, check if the slot time has passed
+  if (date === todayPKT) {
+    const [slotHour, slotMinute] = slot.split(':').map(Number);
+
+    if (slotHour < pktHours || (slotHour === pktHours && slotMinute <= pktMinutes)) {
+      return res.status(400).json({ error: 'Cannot book a time slot that has already passed.' });
+    }
+  }
+
   const profile = db
     .prepare('SELECT name, phone FROM user_profiles WHERE user_uid = ?')
     .get(req.user.uid);
@@ -491,7 +842,7 @@ app.post('/api/bookings', authenticate, (req, res) => {
   }
 
   const ground = db
-    .prepare('SELECT id FROM grounds WHERE id = ?')
+    .prepare('SELECT id, price_per_hour FROM grounds WHERE id = ?')
     .get(groundId);
 
   if (!ground) {
@@ -513,8 +864,8 @@ app.post('/api/bookings', authenticate, (req, res) => {
   }
 
   const statement = db.prepare(
-    `INSERT INTO bookings (ground_id, date, slot, customer_name, customer_phone, user_uid)
-     VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO bookings (ground_id, date, slot, customer_name, customer_phone, user_uid, price_at_booking)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
   );
 
   const info = statement.run(
@@ -523,7 +874,8 @@ app.post('/api/bookings', authenticate, (req, res) => {
     slot,
     profile.name,
     profile.phone,
-    req.user?.uid || null
+    req.user?.uid || null,
+    ground.price_per_hour
   );
 
   res.status(201).json({
@@ -585,7 +937,12 @@ app.get('/api/admin/stats', authenticate, requireAdmin, (req, res) => {
   ).get();
 
   const totalRevenueRow = db.prepare(
-    `SELECT COALESCE(SUM(g.price_per_hour), 0) AS totalRevenue
+    `SELECT COALESCE(SUM(
+       CASE
+         WHEN b.price_at_booking IS NOT NULL THEN b.price_at_booking
+         ELSE g.price_per_hour
+       END
+     ), 0) AS totalRevenue
      FROM bookings b
      JOIN grounds g ON g.id = b.ground_id
      WHERE b.status = 'CONFIRMED'`
@@ -596,10 +953,15 @@ app.get('/api/admin/stats', authenticate, requireAdmin, (req, res) => {
             g.name AS groundName,
             g.city,
             COUNT(b.id) AS bookingCount,
-            COALESCE(SUM(g.price_per_hour), 0) AS revenue
-     FROM grounds g
-     LEFT JOIN bookings b
-       ON b.ground_id = g.id AND b.status = 'CONFIRMED'
+            SUM(
+              CASE
+                WHEN b.price_at_booking IS NOT NULL THEN b.price_at_booking
+                ELSE g.price_per_hour
+              END
+            ) AS revenue
+     FROM bookings b
+     JOIN grounds g ON g.id = b.ground_id
+     WHERE b.status = 'CONFIRMED'
      GROUP BY g.id
      ORDER BY bookingCount DESC`
   ).all();
@@ -607,10 +969,15 @@ app.get('/api/admin/stats', authenticate, requireAdmin, (req, res) => {
   const bookingsByCity = db.prepare(
     `SELECT g.city,
             COUNT(b.id) AS bookingCount,
-            COALESCE(SUM(g.price_per_hour), 0) AS revenue
-     FROM grounds g
-     LEFT JOIN bookings b
-       ON b.ground_id = g.id AND b.status = 'CONFIRMED'
+            SUM(
+              CASE
+                WHEN b.price_at_booking IS NOT NULL THEN b.price_at_booking
+                ELSE g.price_per_hour
+              END
+            ) AS revenue
+     FROM bookings b
+     JOIN grounds g ON g.id = b.ground_id
+     WHERE b.status = 'CONFIRMED'
      GROUP BY g.city
      ORDER BY bookingCount DESC`
   ).all();

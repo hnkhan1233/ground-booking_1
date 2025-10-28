@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config.js';
 import { PAKISTAN_CITIES } from '../constants/cities.js';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import OperatingHoursConfigurator from '../components/OperatingHoursConfigurator.jsx';
 import '../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
@@ -1876,6 +1877,13 @@ function AdminPage() {
                                   </div>
                                 </div>
                               ))}
+                            </div>
+
+                            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(148, 163, 184, 0.3)' }}>
+                              <OperatingHoursConfigurator
+                                groundId={ground.id}
+                                getIdToken={getIdToken}
+                              />
                             </div>
 
                             <label>

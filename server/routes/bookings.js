@@ -90,6 +90,41 @@ router.post('/', authenticate, (req, res) => {
     return res.status(404).json({ error: 'Ground not found.' });
   }
 
+  // Check operating hours for this ground on the booking date
+  const dateObj = new Date(date);
+  const dayOfWeek = (dateObj.getDay() + 6) % 7; // Convert JS day (0=Sunday) to our format (0=Monday)
+
+  const operatingHours = db
+    .prepare(
+      `SELECT start_time, end_time, is_closed
+       FROM ground_operating_hours
+       WHERE ground_id = ? AND day_of_week = ?`
+    )
+    .get(groundId, dayOfWeek);
+
+  if (!operatingHours) {
+    return res.status(400).json({ error: 'Operating hours not configured for this ground.' });
+  }
+
+  if (operatingHours.is_closed) {
+    return res.status(400).json({ error: 'Ground is closed on this day.' });
+  }
+
+  // Check if the requested slot is within operating hours
+  const [slotHour, slotMinute] = slot.split(':').map(Number);
+  const [startHour, startMinute] = operatingHours.start_time.split(':').map(Number);
+  const [endHour, endMinute] = operatingHours.end_time.split(':').map(Number);
+
+  const slotTimeInMinutes = slotHour * 60 + slotMinute;
+  const startTimeInMinutes = startHour * 60 + startMinute;
+  const endTimeInMinutes = endHour * 60 + endMinute;
+
+  if (slotTimeInMinutes < startTimeInMinutes || slotTimeInMinutes >= endTimeInMinutes) {
+    return res.status(400).json({
+      error: `Ground is only available from ${operatingHours.start_time} to ${operatingHours.end_time} on this day.`,
+    });
+  }
+
   const existingBooking = db
     .prepare(
       `SELECT id

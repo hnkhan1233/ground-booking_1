@@ -1202,6 +1202,187 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
 }
 
+/* Account Tabs */
+.account-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.account-tab {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.account-tab:hover {
+  color: #374151;
+}
+
+.account-tab--active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* Bookings List */
+.bookings-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.bookings-empty p {
+  margin: 0;
+}
+
+.bookings-empty a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.bookings-empty a:hover {
+  text-decoration: underline;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bookings-summary {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: #f3f4f6;
+  border-radius: 0.75rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.bookings-table {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.bookings-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  gap: 1rem;
+}
+
+.bookings-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  align-items: center;
+  gap: 1rem;
+  transition: background 0.2s ease;
+}
+
+.bookings-row:last-child {
+  border-bottom: none;
+}
+
+.bookings-row:hover {
+  background: #f9fafb;
+}
+
+.col-ground {
+  min-width: 0;
+}
+
+.ground-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ground-info strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.ground-info small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.col-date {
+  font-size: 0.875rem;
+}
+
+.date-info {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.date-info small {
+  color: #6b7280;
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.col-price {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.col-status {
+  text-align: right;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-confirmed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .primary-button {
   border: none;
   border-radius: 0.95rem;

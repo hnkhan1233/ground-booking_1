@@ -11,6 +11,9 @@ function AccountPage() {
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('account');
+  const [bookings, setBookings] = useState([]);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -73,6 +76,40 @@ function AccountPage() {
     setProfile((current) => ({ ...current, [field]: value }));
   };
 
+  const fetchBookingHistory = async () => {
+    try {
+      setIsLoadingBookings(true);
+      const token = await getIdToken();
+      if (!token) {
+        throw new Error('Unable to verify authentication.');
+      }
+      const response = await fetch(`${API_BASE_URL}/api/bookings/user/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Could not load your bookings.');
+      }
+
+      const data = await response.json();
+      setBookings(data || []);
+    } catch (error) {
+      console.error(error);
+      setBookings([]);
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'bookings' && bookings.length === 0) {
+      fetchBookingHistory();
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage('');
@@ -122,7 +159,7 @@ function AccountPage() {
       <div className="account__header">
         <div>
           <h1>My account</h1>
-          <p>Update the contact details used for your ground bookings.</p>
+          <p>Manage your profile and booking history.</p>
         </div>
         <div className="account__actions">
           <Link to="/" className="link-button link-button--inline">Back to booking</Link>
@@ -132,43 +169,116 @@ function AccountPage() {
         </div>
       </div>
 
+      <div className="account-tabs">
+        <button
+          className={`account-tab ${activeTab === 'account' ? 'account-tab--active' : ''}`}
+          onClick={() => handleTabChange('account')}
+        >
+          Account Information
+        </button>
+        <button
+          className={`account-tab ${activeTab === 'bookings' ? 'account-tab--active' : ''}`}
+          onClick={() => handleTabChange('bookings')}
+        >
+          Booking History
+        </button>
+      </div>
+
       <div className="account-card">
-        {isLoading ? (
-          <p className="status">Loading profile…</p>
-        ) : (
-          <form className="account-form" onSubmit={handleSubmit}>
-            <label>
-              Email address
-              <input type="email" value={user?.email || ''} disabled />
-            </label>
-            <label>
-              Full name
-              <input
-                type="text"
-                value={profile.name}
-                onChange={handleChange('name')}
-                placeholder="Ali Khan"
-                required
-                disabled={saving}
-              />
-            </label>
-            <label>
-              Phone number
-              <input
-                type="tel"
-                value={profile.phone}
-                onChange={handleChange('phone')}
-                placeholder="0300-1234567"
-                required
-                disabled={saving}
-              />
-            </label>
-            {errorMessage && <p className="form-error">{errorMessage}</p>}
-            {statusMessage && <p className="auth-message">{statusMessage}</p>}
-            <button type="submit" className="auth-button auth-button--primary" disabled={saving}>
-              {saving ? 'Saving…' : 'Save changes'}
-            </button>
-          </form>
+        {activeTab === 'account' && (
+          isLoading ? (
+            <p className="status">Loading profile…</p>
+          ) : (
+            <form className="account-form" onSubmit={handleSubmit}>
+              <label>
+                Email address
+                <input type="email" value={user?.email || ''} disabled />
+              </label>
+              <label>
+                Full name
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={handleChange('name')}
+                  placeholder="Ali Khan"
+                  required
+                  disabled={saving}
+                />
+              </label>
+              <label>
+                Phone number
+                <input
+                  type="tel"
+                  value={profile.phone}
+                  onChange={handleChange('phone')}
+                  placeholder="0300-1234567"
+                  required
+                  disabled={saving}
+                />
+              </label>
+              {errorMessage && <p className="form-error">{errorMessage}</p>}
+              {statusMessage && <p className="auth-message">{statusMessage}</p>}
+              <button type="submit" className="auth-button auth-button--primary" disabled={saving}>
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+            </form>
+          )
+        )}
+
+        {activeTab === 'bookings' && (
+          isLoadingBookings ? (
+            <p className="status">Loading bookings…</p>
+          ) : bookings.length === 0 ? (
+            <div className="bookings-empty">
+              <p>No bookings yet. <Link to="/">Start booking a ground</Link></p>
+            </div>
+          ) : (
+            <div className="bookings-list">
+              <div className="bookings-summary">
+                <div className="summary-item">
+                  <span className="summary-label">Total Bookings:</span>
+                  <span className="summary-value">{bookings.length}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Total Spent:</span>
+                  <span className="summary-value">Rs. {bookings.reduce((sum, b) => sum + (b.priceAtBooking || 0), 0).toLocaleString('en-PK')}</span>
+                </div>
+              </div>
+
+              <div className="bookings-table">
+                <div className="bookings-header">
+                  <div className="col-ground">Ground</div>
+                  <div className="col-date">Date & Time</div>
+                  <div className="col-price">Price</div>
+                  <div className="col-status">Status</div>
+                </div>
+
+                {bookings.map((booking) => (
+                  <div key={booking.id} className="bookings-row">
+                    <div className="col-ground">
+                      <div className="ground-info">
+                        <strong>{booking.groundName}</strong>
+                        <small>{booking.location}, {booking.city}</small>
+                      </div>
+                    </div>
+                    <div className="col-date">
+                      <div className="date-info">
+                        {new Date(booking.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        <br />
+                        <small>{booking.slot}</small>
+                      </div>
+                    </div>
+                    <div className="col-price">Rs. {booking.priceAtBooking}</div>
+                    <div className="col-status">
+                      <span className={`status-badge status-${booking.status.toLowerCase()}`}>
+                        {booking.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
         )}
       </div>
     </div>

@@ -53,8 +53,10 @@ async function sendBookingNotificationEmail(bookingDetails) {
       html: emailContent,
     };
 
-    await mailer.sendMail(mailOptions);
-    console.log(`Booking notification email sent to admins for booking ID: ${bookingDetails.bookingId}`);
+    const result = await mailer.sendMail(mailOptions);
+    console.log(`✅ Booking notification email sent successfully for booking ID: ${bookingDetails.bookingId}`);
+    console.log(`📧 Email sent to: ${adminEmails.join(', ')}`);
+    console.log(`📮 Message ID: ${result.messageId}`);
   } catch (error) {
     console.error('Error sending booking notification email:', error);
     // Don't throw - we don't want email failures to block the booking
@@ -92,10 +94,12 @@ async function sendCancellationNotificationEmail(bookingDetails) {
       html: emailContent,
     };
 
-    await mailer.sendMail(mailOptions);
+    const result = await mailer.sendMail(mailOptions);
     console.log(
-      `Booking cancellation email sent to admins for booking ID: ${bookingDetails.bookingId}`
+      `✅ Booking cancellation email sent to admins for booking ID: ${bookingDetails.bookingId}`
     );
+    console.log(`📧 Email sent to: ${adminEmails.join(', ')}`);
+    console.log(`📮 Message ID: ${result.messageId}`);
   } catch (error) {
     console.error('Error sending cancellation notification email:', error);
   }

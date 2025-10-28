@@ -5,6 +5,29 @@ import '../App.css';
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const SLOT_DURATIONS = [15, 30, 45, 60, 90, 120];
 
+// Convert 24-hour time to 12-hour AM/PM format
+function formatTime12Hour(time24) {
+  if (!time24) return '';
+  const [hour, minute] = time24.split(':').map(Number);
+  let displayHour = hour % 12;
+  if (displayHour === 0) displayHour = 12;
+  const period = hour < 12 ? 'AM' : 'PM';
+  return `${displayHour}:${String(minute).padStart(2, '0')} ${period}`;
+}
+
+// Generate time options in AM/PM format
+function generateTimeOptions() {
+  const options = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const time24 = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      const time12 = formatTime12Hour(time24);
+      options.push({ value: time24, label: time12 });
+    }
+  }
+  return options;
+}
+
 function OperatingHoursConfigurator({ groundId, getIdToken }) {
   const [hours, setHours] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -206,24 +229,36 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
                     <div className="oh-time-inputs">
                       <div className="oh-input-group">
                         <label>Opening Time</label>
-                        <input
-                          type="time"
+                        <select
                           value={dayHours.start_time}
                           onChange={(e) =>
                             handleTimeChange(dayHours.day_of_week, 'start_time', e.target.value)
                           }
-                        />
+                          className="oh-time-select"
+                        >
+                          {generateTimeOptions().map((time) => (
+                            <option key={time.value} value={time.value}>
+                              {time.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="oh-input-group">
                         <label>Closing Time</label>
-                        <input
-                          type="time"
+                        <select
                           value={dayHours.end_time}
                           onChange={(e) =>
                             handleTimeChange(dayHours.day_of_week, 'end_time', e.target.value)
                           }
-                        />
+                          className="oh-time-select"
+                        >
+                          {generateTimeOptions().map((time) => (
+                            <option key={time.value} value={time.value}>
+                              {time.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
@@ -278,7 +313,7 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
                   <span className="oh-closed-badge">Closed</span>
                 ) : (
                   <span className="oh-hours-badge">
-                    {dayHours.start_time} - {dayHours.end_time}
+                    {formatTime12Hour(dayHours.start_time)} - {formatTime12Hour(dayHours.end_time)}
                     <br />
                     <small>{dayHours.slot_duration_minutes}m slots</small>
                   </span>

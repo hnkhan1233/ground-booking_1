@@ -3457,7 +3457,8 @@
   color: #374151;
 }
 
-.oh-input-group input[type='time'] {
+.oh-input-group input[type='time'],
+.oh-time-select {
   padding: 0.6rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
@@ -3465,12 +3466,19 @@
   font-weight: 500;
   color: #1f2937;
   transition: all 0.2s ease;
+  background: #ffffff;
+  width: 100%;
 }
 
-.oh-input-group input[type='time']:focus {
+.oh-input-group input[type='time']:focus,
+.oh-time-select:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.oh-time-select {
+  cursor: pointer;
 }
 
 .oh-slot-duration {

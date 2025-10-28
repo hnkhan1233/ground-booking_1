@@ -19,17 +19,27 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
   const fetchOperatingHours = async () => {
     try {
       setLoading(true);
+      setMessage(null);
       const token = await getIdToken();
+
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/operating-hours/ground/${groundId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) throw new Error('Failed to load operating hours');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to load operating hours (${response.status})`);
+      }
+
       const data = await response.json();
       setHours(data);
     } catch (error) {
-      console.error(error);
-      setMessage({ type: 'error', text: 'Could not load operating hours' });
+      console.error('Operating hours fetch error:', error);
+      setMessage({ type: 'error', text: error.message || 'Could not load operating hours' });
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ const { authenticate, requireAdmin } = require('../middleware/auth');
 const { getDb } = require('../db');
 const { isValidDate } = require('../utils/validators');
 const { SLOT_TIMES } = require('../utils/constants');
+const { sendBookingNotificationEmail, sendCancellationNotificationEmail } = require('../services/emailService');
 
 const router = express.Router();
 
@@ -98,6 +99,23 @@ router.post('/', authenticate, (req, res) => {
     ground.price_per_hour
   );
 
+  // Send email notification to admins
+  sendBookingNotificationEmail({
+    bookingId: info.lastInsertRowid,
+    groundId,
+    groundName: ground.name,
+    location: ground.location,
+    city: ground.city,
+    date,
+    slot,
+    customerName: profile.name,
+    customerPhone: profile.phone,
+    priceAtBooking: ground.price_per_hour,
+  }).catch((err) => {
+    // Log error but don't fail the booking
+    console.error('Failed to send booking notification email:', err);
+  });
+
   res.status(201).json({
     id: info.lastInsertRowid,
     groundId,
@@ -115,7 +133,13 @@ router.delete('/:bookingId', authenticate, (req, res) => {
   const { bookingId } = req.params;
 
   const booking = db
-    .prepare('SELECT id, status FROM bookings WHERE id = ?')
+    .prepare(
+      `SELECT b.id, b.status, b.ground_id, b.date, b.slot, b.customer_name, b.customer_phone,
+              g.name, g.city, g.location
+       FROM bookings b
+       JOIN grounds g ON g.id = b.ground_id
+       WHERE b.id = ?`
+    )
     .get(bookingId);
 
   if (!booking) {
@@ -127,6 +151,21 @@ router.delete('/:bookingId', authenticate, (req, res) => {
   }
 
   db.prepare(`UPDATE bookings SET status = 'CANCELLED' WHERE id = ?`).run(bookingId);
+
+  // Send cancellation email notification to admins
+  sendCancellationNotificationEmail({
+    bookingId: booking.id,
+    groundName: booking.name,
+    location: booking.location,
+    city: booking.city,
+    date: booking.date,
+    slot: booking.slot,
+    customerName: booking.customer_name,
+    customerPhone: booking.customer_phone,
+  }).catch((err) => {
+    // Log error but don't fail the cancellation
+    console.error('Failed to send cancellation notification email:', err);
+  });
 
   res.json({ success: true });
 });

@@ -658,36 +658,77 @@ function BookingPage() {
     <div className="app app--sporty">
       <header className="hero hero--sporty">
         <div className="hero__overlay">
-          <div className="hero__content">
-            <p className="hero__eyebrow">Pakistan Grounds Network</p>
-            <h1>Lock the perfect slot before the whistle blows</h1>
-            <p className="hero__tagline">
-              Real-time turf availability across Karachi, Lahore, Islamabad, Rawalpindi and beyond.
-              Reserve within seconds, pay on arrival, and focus on your game.
-            </p>
-            {isAdminAccount ? (
-              <div className="hero__cta">
-                <Link to="/admin" className="ghost-button ghost-button--light">
-                  Admin Console
-                </Link>
-              </div>
-            ) : null}
+          <div className="hero__header">
+            <span className="hero__eyebrow">Pakistan Grounds Network</span>
+            <div className="hero__actions">
+              {user ? (
+                <>
+                  <Link to="/account" className="hero__action-link">
+                    Account
+                  </Link>
+                  {isAdminAccount ? (
+                    <Link to="/admin" className="hero__action-link hero__action-link--accent">
+                      Admin Console
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="hero__action-link hero__action-link--ghost"
+                    onClick={logout}
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="hero__action-link hero__action-link--primary"
+                  onClick={() => openAuthModal('signin')}
+                >
+                  Sign in
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="hero__stats">
-            <div className="hero-stat">
-              <span className="hero-stat__label">Active Grounds</span>
-              <span className="hero-stat__value">{summary.totalGrounds}</span>
+          <div className="hero__body">
+            <div className="hero__content">
+              <h1>Lock the perfect slot before the whistle blows</h1>
+              <p className="hero__tagline">
+                Real-time turf availability across Karachi, Lahore, Islamabad, Rawalpindi and beyond.
+                Reserve within seconds, pay on arrival, and focus on your game.
+              </p>
+              <div className="hero__cta">
+                <button
+                  type="button"
+                  className="primary-cta-button"
+                  onClick={() => {
+                    document.querySelector('.ground-list')?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                    });
+                  }}
+                >
+                  Book a Slot
+                </button>
+              </div>
             </div>
-            <div className="hero-stat">
-              <span className="hero-stat__label">Cities Covered</span>
-              <span className="hero-stat__value">{summary.cityCount}</span>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat__label">Average Rate</span>
-              <span className="hero-stat__value">
-                PKR {summary.averagePrice.toLocaleString()}
-              </span>
+
+            <div className="hero__stats">
+              <div className="hero-stat">
+                <span className="hero-stat__label">Active Grounds</span>
+                <span className="hero-stat__value">{summary.totalGrounds}</span>
+              </div>
+              <div className="hero-stat">
+                <span className="hero-stat__label">Cities Covered</span>
+                <span className="hero-stat__value">{summary.cityCount}</span>
+              </div>
+              <div className="hero-stat">
+                <span className="hero-stat__label">Average Rate</span>
+                <span className="hero-stat__value">
+                  PKR {summary.averagePrice.toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -810,112 +851,86 @@ function BookingPage() {
         <section className="booking-panel booking-panel--sporty">
           <div className="booking-panel__header">
             <h2>Reserve your slot</h2>
-            {user ? (
-              <div className="user-chip">
-                <div>
-                  <span className="user-chip__label">Signed in as</span>
-                  <span className="user-chip__value">{effectiveName}</span>
-                  {profile?.phone ? (
-                    <span className="user-chip__subvalue">{profile.phone}</span>
-                  ) : null}
-                </div>
-                <div className="user-chip__actions">
-                  <Link to="/account" className="link-button link-button--inline">
-                    Account
-                  </Link>
-                  {isAdminAccount ? (
-                    <Link to="/admin" className="link-button link-button--inline">
-                      Admin
-                    </Link>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="auth-button auth-button--secondary"
-                    onClick={logout}
-                  >
-                    Log out
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="auth-button auth-button--secondary"
-                onClick={() => openAuthModal('signin')}
-              >
-                Sign in / Sign up
-              </button>
-            )}
           </div>
 
           {selectedGround ? (
             <>
-              <div className="booking-panel__ground booking-panel__ground--sporty">
-                <h3>{selectedGround.name}</h3>
-                <p>{selectedGround.city} · {selectedGround.location}</p>
+              <div className="booking-panel__section booking-panel__section--card">
+                <div className="booking-panel__ground booking-panel__ground--sporty">
+                  <h3>{selectedGround.name}</h3>
+                  <p>{selectedGround.city} · {selectedGround.location}</p>
+                </div>
               </div>
 
-              <label className="form-field">
-                <span>Date</span>
-                <input
-                  type="date"
-                  min={initialDate()}
-                  value={selectedDate}
-                  onChange={(event) => {
-                    setSelectedDate(event.target.value);
-                    setSelectedSlot('');
-                  }}
-                />
-              </label>
-
-              <div className="availability availability--sporty">
-                <div className="availability__header">
-                  <h3>Available slots</h3>
-                  {isLoadingAvailability && <span className="status">Loading...</span>}
-                </div>
-
-                <div className="availability__grid availability__grid--sporty">
-                  {availability.map((item) => {
-                    const isSelected = selectedSlot === item.slot;
-                    return (
-                      <button
-                        type="button"
-                        key={item.slot}
-                        className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''}`}
-                        disabled={!item.available || isLoadingAvailability}
-                        onClick={() => handleSlotSelect(item.slot)}
-                      >
-                        <span>{item.slot}</span>
-                        <span className="slot__status">
-                          {item.available ? 'Open' : 'Booked'}
-                        </span>
-                      </button>
-                    );
-                  })}
-
-                  {!availability.length && !isLoadingAvailability ? (
-                    <p className="status status--muted">
-                      Select a date to view available slots.
-                    </p>
-                  ) : null}
-                </div>
-                {slotError && <p className="form-error">{slotError}</p>}
+              <div className="booking-panel__section booking-panel__section--card">
+                <label className="form-field">
+                  <span>Date</span>
+                  <input
+                    type="date"
+                    min={initialDate()}
+                    value={selectedDate}
+                    onChange={(event) => {
+                      setSelectedDate(event.target.value);
+                      setSelectedSlot('');
+                    }}
+                  />
+                </label>
               </div>
 
-              <form className="booking-form booking-form--sporty" onSubmit={handleSubmit}>
-                <button
-                  className="primary-button primary-button--sporty"
-                  type="submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Booking...' : 'Book Now'}
-                </button>
-              </form>
+              <div className="booking-panel__section booking-panel__section--slots booking-panel__section--card">
+                <div className="availability availability--sporty">
+                  <div className="availability__header">
+                    <h3>Available slots</h3>
+                    {isLoadingAvailability && <span className="status">Loading...</span>}
+                  </div>
+
+                  <div className="availability__grid availability__grid--sporty">
+                    {availability.map((item) => {
+                      const isSelected = selectedSlot === item.slot;
+                      return (
+                        <button
+                          type="button"
+                          key={item.slot}
+                          className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''}`}
+                          disabled={!item.available || isLoadingAvailability}
+                          onClick={() => handleSlotSelect(item.slot)}
+                        >
+                          <span>{item.slot}</span>
+                          <span className="slot__status">
+                            {item.available ? 'Open' : 'Booked'}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    {!availability.length && !isLoadingAvailability ? (
+                      <p className="status status--muted availability__empty">
+                        Select a date to view available slots.
+                      </p>
+                    ) : null}
+                  </div>
+                  {slotError && <p className="form-error">{slotError}</p>}
+                </div>
+              </div>
+
+              <div className="booking-panel__section booking-panel__section--submit">
+                <form className="booking-form booking-form--sporty" onSubmit={handleSubmit}>
+                  <button
+                    className="primary-button primary-button--sporty"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Booking...' : 'Book Now'}
+                  </button>
+                </form>
+              </div>
 
               {!user && (
-                <p className="auth-hint">
-                  You can explore availability first; we only ask you to sign in when you confirm your booking.
-                </p>
+                <div className="booking-panel__section booking-panel__section--auth">
+                  <p className="auth-hint">
+                    You can explore availability first; we only ask you to sign in when you confirm your booking.
+                  </p>
+                </div>
               )}
             </>
           ) : (
@@ -923,8 +938,10 @@ function BookingPage() {
           )}
 
           {serverMessage && (
-            <div className={`flash-message flash-message--${serverMessage.type}`} role="status">
-              {serverMessage.text}
+            <div className="booking-panel__section">
+              <div className={`flash-message flash-message--${serverMessage.type}`} role="status">
+                {serverMessage.text}
+              </div>
             </div>
           )}
         </section>

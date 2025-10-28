@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { API_BASE_URL } from '../config.js';
+import { getFeatureIcon, getCategoryColor } from '../utils/featureIcons.js';
 import '../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
@@ -584,12 +585,12 @@ function GroundDetailPage() {
                 <h2>Amenities</h2>
                 <div className="features-section">
                   {Object.entries(featuresByCategory).map(([category, features]) => (
-                    <div key={category} className="feature-category">
+                    <div key={category} className="feature-category" style={{ backgroundColor: getCategoryColor(category) }}>
                       <h3 className="feature-category__title">{category}</h3>
                       <ul className="feature-list">
                         {features.map((feature) => (
                           <li key={feature.id} className="feature-item">
-                            <span className="feature-item__check">✓</span>
+                            <span className="feature-item__icon">{getFeatureIcon(feature.feature_name)}</span>
                             <span className="feature-item__name">{feature.feature_name}</span>
                             {feature.feature_value && (
                               <span className="feature-item__value">: {feature.feature_value}</span>
@@ -690,12 +691,6 @@ function GroundDetailPage() {
                     </button>
                   )}
                 </div>
-
-                {user && profile?.phone && (
-                  <div className="booking-card__info">
-                    Booking as <strong>{effectiveName}</strong> · {profile.phone}
-                  </div>
-                )}
               </div>
             </div>
           </aside>

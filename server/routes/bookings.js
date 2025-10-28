@@ -63,7 +63,7 @@ router.post('/', authenticate, (req, res) => {
   }
 
   const ground = db
-    .prepare('SELECT id, price_per_hour FROM grounds WHERE id = ?')
+    .prepare('SELECT id, name, location, city, price_per_hour FROM grounds WHERE id = ?')
     .get(groundId);
 
   if (!ground) {

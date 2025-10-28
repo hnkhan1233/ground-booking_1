@@ -138,7 +138,26 @@ function initDb() {
     )
     .run();
 
+  // Create ground_operating_hours table for day-wise time slots
+  dbInstance
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS ground_operating_hours (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ground_id INTEGER NOT NULL,
+        day_of_week INTEGER NOT NULL,
+        start_time TEXT NOT NULL,
+        end_time TEXT NOT NULL,
+        slot_duration_minutes INTEGER DEFAULT 60,
+        is_closed BOOLEAN DEFAULT 0,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(ground_id, day_of_week),
+        FOREIGN KEY (ground_id) REFERENCES grounds(id) ON DELETE CASCADE
+      )`
+    )
+    .run();
+
   seedGrounds(dbInstance);
+  seedOperatingHours(dbInstance);
 
   return dbInstance;
 }
@@ -220,6 +239,36 @@ function seedGrounds(db) {
   });
 
   insertMany(grounds);
+}
+
+function seedOperatingHours(db) {
+  // Default operating hours for all grounds: 6 AM to 11 PM, 1-hour slots, Open all days
+  const existingHours = db.prepare('SELECT COUNT(*) AS count FROM ground_operating_hours').get();
+
+  if (existingHours.count > 0) {
+    return;
+  }
+
+  const grounds = db.prepare('SELECT id FROM grounds').all();
+  const defaultStartTime = '06:00';
+  const defaultEndTime = '23:00';
+  const defaultSlotDuration = 60;
+
+  // Days: 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+  grounds.forEach((ground) => {
+    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+      db.prepare(
+        `INSERT INTO ground_operating_hours
+        (ground_id, day_of_week, start_time, end_time, slot_duration_minutes, is_closed)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(ground_id, day_of_week) DO UPDATE SET
+        start_time = excluded.start_time,
+        end_time = excluded.end_time,
+        slot_duration_minutes = excluded.slot_duration_minutes,
+        is_closed = excluded.is_closed`
+      ).run(ground.id, dayOfWeek, defaultStartTime, defaultEndTime, defaultSlotDuration, 0);
+    }
+  });
 }
 
 function getDb() {

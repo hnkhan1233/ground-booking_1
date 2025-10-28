@@ -15,6 +15,35 @@ const formatCurrency = (value) => {
   }).format(value || 0);
 };
 
+const SPORT_CATEGORIES = [
+  'Football',
+  'Cricket',
+  'Padel',
+  'Futsal',
+  'Hockey',
+  'Basketball',
+  'Tennis',
+  'Badminton',
+];
+
+const GROUND_FEATURES = {
+  'Team Format': ['5v5', '7v7', '11v11'],
+  'Surface': ['Artificial Turf', 'Natural Grass', 'Concrete', 'Astroturf', 'Wooden'],
+  'Venue Type': ['Covered', 'Partially Covered', 'Open'],
+  'Amenities': [
+    'Flood Lights',
+    'Parking',
+    'Changing Rooms',
+    'Washrooms',
+    'Drinking Water',
+    'Cafeteria',
+    'Drinks Shop',
+    'Seating Area',
+    'First Aid',
+    'Equipment Rental',
+  ],
+};
+
 const emptyGround = () => ({
   name: '',
   city: PAKISTAN_CITIES[0] ?? '',
@@ -23,6 +52,9 @@ const emptyGround = () => ({
   description: '',
   imageUrl: '',
   imagePreview: '',
+  category: '',
+  features: {},
+  gallery: [],
 });
 
 const resolveImageUrl = (raw) => {
@@ -59,6 +91,7 @@ function AdminPage() {
   const [newGround, setNewGround] = useState(emptyGround);
   const [newGroundImage, setNewGroundImage] = useState(null);
   const [groundImageDrafts, setGroundImageDrafts] = useState({});
+  const [galleryBusy, setGalleryBusy] = useState({});
   const [busyGroundId, setBusyGroundId] = useState(null);
   const [flash, setFlash] = useState(null);
   const [authError, setAuthError] = useState('');
@@ -82,6 +115,114 @@ function AdminPage() {
   const statsByGround = stats?.byGround ?? [];
   const statsByCity = stats?.byCity ?? [];
   const statsUpcoming = stats?.upcoming ?? [];
+
+  const isGalleryBusy = (groundId) => Boolean(galleryBusy[groundId]);
+
+  const setGalleryBusyState = useCallback((groundId, value) => {
+    setGalleryBusy((prev) => {
+      if (value) {
+        return { ...prev, [groundId]: true };
+      }
+      const { [groundId]: _removed, ...rest } = prev;
+      return rest;
+    });
+  }, []);
+
+  const mapFeaturesFromDetail = useCallback((featuresArray = []) => {
+    if (!Array.isArray(featuresArray)) {
+      return {};
+    }
+
+    const features = {};
+    featuresArray.forEach((feature) => {
+      if (!feature) {
+        return;
+      }
+      const category = feature.category || 'General';
+      if (!features[category]) {
+        features[category] = [];
+      }
+      if (Array.isArray(features[category])) {
+        features[category].push(feature.feature_name);
+      }
+    });
+
+    ['Team Format', 'Surface', 'Venue Type'].forEach((category) => {
+      if (Array.isArray(features[category]) && features[category].length > 0) {
+        features[category] = features[category][0];
+      }
+    });
+
+    return features;
+  }, []);
+
+  const normalizeGallery = useCallback((images = []) => {
+    if (!Array.isArray(images)) {
+      return [];
+    }
+
+    return images
+      .map((image) => {
+        if (!image) {
+          return null;
+        }
+        const path = image.imageUrl ?? image.image_url ?? '';
+        if (!path) {
+          return null;
+        }
+        return {
+          id: image.id,
+          imageUrl: path,
+          displayOrder: image.displayOrder ?? image.display_order ?? 0,
+          preview: resolveImageUrl(path),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.displayOrder !== b.displayOrder) {
+          return a.displayOrder - b.displayOrder;
+        }
+        return a.id - b.id;
+      });
+  }, []);
+
+  const refreshGroundFromDetail = useCallback(
+    async (groundId) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/grounds/${groundId}`);
+        if (!response.ok) {
+          return;
+        }
+        const details = await response.json();
+        setGrounds((prev) =>
+          prev.map((ground) => {
+            if (ground.id !== groundId) {
+              return ground;
+            }
+            return {
+              ...ground,
+              name: details.name ?? ground.name,
+              city: details.city ?? ground.city,
+              location: details.location ?? ground.location,
+              pricePerHour:
+                details.price_per_hour != null
+                  ? String(details.price_per_hour)
+                  : ground.pricePerHour,
+              description: details.description ?? ground.description,
+              imageUrl: details.image_url ?? '',
+              imagePreview: details.image_url ? resolveImageUrl(details.image_url) : '',
+              category: details.category ?? ground.category,
+              features: mapFeaturesFromDetail(details.features),
+              gallery: normalizeGallery(details.images),
+            };
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [mapFeaturesFromDetail, normalizeGallery]
+  );
 
   const cityOptions = useMemo(() => {
     const unique = new Set(PAKISTAN_CITIES);
@@ -148,8 +289,33 @@ function AdminPage() {
       }
 
       const data = await response.json();
+
+      // Load features for each ground
+      const groundsWithDetails = await Promise.all(
+        data.map(async (ground) => {
+          try {
+            const detailRes = await fetch(`${API_BASE_URL}/api/grounds/${ground.id}`);
+            if (detailRes.ok) {
+              const details = await detailRes.json();
+              return {
+                ...ground,
+                category: details.category ?? ground.category ?? '',
+                features: mapFeaturesFromDetail(details.features),
+                image_url: details.image_url ?? ground.image_url ?? '',
+                price_per_hour: details.price_per_hour ?? ground.price_per_hour,
+                description: details.description ?? ground.description,
+                gallery: details.images,
+              };
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          return ground;
+        })
+      );
+
       setGrounds(
-        data.map((ground) => ({
+        groundsWithDetails.map((ground) => ({
           id: ground.id,
           name: ground.name ?? '',
           city: ground.city ?? '',
@@ -157,7 +323,13 @@ function AdminPage() {
           pricePerHour: ground.price_per_hour != null ? String(ground.price_per_hour) : '',
           description: ground.description ?? '',
           imageUrl: ground.image_url ?? '',
-          imagePreview: resolveImageUrl(ground.image_url),
+          imagePreview: ground.image_url ? resolveImageUrl(ground.image_url) : '',
+          category: ground.category ?? '',
+          features:
+            ground.features && !Array.isArray(ground.features)
+              ? ground.features
+              : mapFeaturesFromDetail(ground.features),
+          gallery: normalizeGallery(ground.gallery ?? ground.images ?? []),
         }))
       );
     } catch (err) {
@@ -166,7 +338,7 @@ function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [authorizedFetch, handleAuthFailure, showFlash]);
+  }, [authorizedFetch, handleAuthFailure, mapFeaturesFromDetail, normalizeGallery, showFlash]);
 
   const loadStats = useCallback(async () => {
     try {
@@ -444,6 +616,25 @@ function AdminPage() {
     formData.append('pricePerHour', sanitizedPrice);
     formData.append('description', (ground.description || '').trim());
 
+    if (ground.category) {
+      formData.append('category', ground.category);
+    }
+
+    // Convert features object to array format for the API
+    if (ground.features && Object.keys(ground.features).length > 0) {
+      const featuresArray = [];
+      Object.entries(ground.features).forEach(([category, values]) => {
+        if (Array.isArray(values)) {
+          values.forEach((value) => {
+            featuresArray.push({ name: value, category });
+          });
+        } else if (values) {
+          featuresArray.push({ name: values, category });
+        }
+      });
+      formData.append('features', JSON.stringify(featuresArray));
+    }
+
     if (file) {
       formData.append('image', file);
     } else if (ground.imageUrl) {
@@ -482,7 +673,7 @@ function AdminPage() {
         prev.map((item) =>
           item.id === groundId
             ? {
-                id: updated.id,
+                ...item,
                 name: updated.name ?? '',
                 city: updated.city ?? '',
                 location: updated.location ?? '',
@@ -490,7 +681,9 @@ function AdminPage() {
                   updated.price_per_hour != null ? String(updated.price_per_hour) : '',
                 description: updated.description ?? '',
                 imageUrl: updated.image_url ?? '',
-                imagePreview: resolveImageUrl(updated.image_url),
+                imagePreview: updated.image_url ? resolveImageUrl(updated.image_url) : '',
+                category: updated.category ?? item.category ?? '',
+                gallery: normalizeGallery(updated.images),
               }
             : item
         )
@@ -507,6 +700,181 @@ function AdminPage() {
       setBusyGroundId(null);
     }
   }
+
+  const handleGalleryUpload = async (groundId, fileList) => {
+    const files = Array.from(fileList || []).filter(Boolean);
+    if (!files.length) {
+      return;
+    }
+
+    setGalleryBusyState(groundId, true);
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('image', file);
+        const response = await authorizedFetch(`${API_BASE_URL}/api/admin/grounds/${groundId}/images`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (await handleAuthFailure(response)) {
+          return;
+        }
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || 'Image upload failed.');
+        }
+
+        const data = await response.json();
+        uploaded.push(data);
+      }
+
+      await refreshGroundFromDetail(groundId);
+
+      if (uploaded.length > 0) {
+        showFlash('success', `Added ${uploaded.length} new photo${uploaded.length === 1 ? '' : 's'}.`);
+      }
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not upload image.');
+    } finally {
+      setGalleryBusyState(groundId, false);
+    }
+  };
+
+  const handleGalleryDelete = async (groundId, imageId) => {
+    if (!window.confirm('Remove this photo from the gallery?')) {
+      return;
+    }
+
+    setGalleryBusyState(groundId, true);
+    try {
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/grounds/${groundId}/images/${imageId}`, {
+        method: 'DELETE',
+      });
+
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Delete failed.');
+      }
+
+      await refreshGroundFromDetail(groundId);
+      showFlash('success', 'Photo removed.');
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not remove photo.');
+    } finally {
+      setGalleryBusyState(groundId, false);
+    }
+  };
+
+  const handleGalleryMove = async (groundId, imageId, direction) => {
+    const ground = grounds.find((item) => item.id === groundId);
+    if (!ground || !ground.gallery || ground.gallery.length < 2) {
+      return;
+    }
+
+    const currentIndex = ground.gallery.findIndex((image) => image.id === imageId);
+    if (currentIndex === -1) {
+      return;
+    }
+
+    const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= ground.gallery.length) {
+      return;
+    }
+
+    const reordered = [...ground.gallery];
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
+    const order = reordered.map((image) => image.id);
+
+    setGalleryBusyState(groundId, true);
+    try {
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/grounds/${groundId}/images/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order }),
+      });
+
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Reorder failed.');
+      }
+
+      const result = await response.json();
+      setGrounds((prev) =>
+        prev.map((item) =>
+          item.id === groundId
+            ? { ...item, gallery: normalizeGallery(result.images) }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not reorder images.');
+      await refreshGroundFromDetail(groundId);
+    } finally {
+      setGalleryBusyState(groundId, false);
+    }
+  };
+
+  const handleSetCover = async (groundId, imageUrl) => {
+    const ground = grounds.find((item) => item.id === groundId);
+    if (!ground) {
+      return;
+    }
+
+    setGalleryBusyState(groundId, true);
+    try {
+      const formData = buildGroundFormData({ ...ground, imageUrl }, null);
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/grounds/${groundId}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        const payload = await response.json();
+        throw new Error(payload.error || 'Unable to set cover photo.');
+      }
+
+      const updated = await response.json();
+      setGrounds((prev) =>
+        prev.map((item) =>
+          item.id === groundId
+            ? {
+                ...item,
+                imageUrl: updated.image_url ?? '',
+                imagePreview: updated.image_url ? resolveImageUrl(updated.image_url) : '',
+                gallery: normalizeGallery(updated.images),
+              }
+            : item
+        )
+      );
+      showFlash('success', 'Cover photo updated.');
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not set cover photo.');
+    } finally {
+      setGalleryBusyState(groundId, false);
+    }
+  };
 
   async function handleDelete(groundId) {
     if (!window.confirm('Delete this ground? This cannot be undone.')) {
@@ -577,7 +945,10 @@ function AdminPage() {
           pricePerHour: created.price_per_hour != null ? String(created.price_per_hour) : '',
           description: created.description ?? '',
           imageUrl: created.image_url ?? '',
-          imagePreview: resolveImageUrl(created.image_url),
+          imagePreview: created.image_url ? resolveImageUrl(created.image_url) : '',
+          category: created.category ?? '',
+          features: mapFeaturesFromDetail(created.features),
+          gallery: normalizeGallery(created.images),
         },
         ...prev,
       ]);
@@ -803,7 +1174,8 @@ function AdminPage() {
             >
               Sign out
             </button>
-          </section>        ) : (
+          </section>
+        ) : (
           <>
             <div className="admin-tabs">
               <button
@@ -824,7 +1196,21 @@ function AdminPage() {
 
             {activeTab === 'stats' && (
               <section className="admin-card admin-stats">
-                <h2>Dashboard</h2>
+                <div className="admin-card__header">
+                  <h2>Dashboard overview</h2>
+                  {statsLoading ? (
+                    <span className="status">Refreshing…</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      onClick={loadStats}
+                      disabled={statsLoading}
+                    >
+                      Refresh stats
+                    </button>
+                  )}
+                </div>
                 {statsLoading ? (
                   <p className="status">Fetching latest metrics…</p>
                 ) : statsError ? (
@@ -832,21 +1218,38 @@ function AdminPage() {
                 ) : stats ? (
                   <>
                     <div className="stats-grid">
-                      <div className="stat-card">
-                        <p className="stat-label">Total bookings</p>
-                        <p className="stat-value">{totalBookings}</p>
+                      <div className="stat-card stat-card--primary">
+                        <div className="stat-card__icon">📊</div>
+                        <div className="stat-card__content">
+                          <p className="stat-label">Total bookings</p>
+                          <p className="stat-value">{totalBookings}</p>
+                        </div>
                       </div>
-                      <div className="stat-card">
-                        <p className="stat-label">Total revenue</p>
-                        <p className="stat-value">{formatCurrency(totalRevenue)}</p>
+                      <div className="stat-card stat-card--success">
+                        <div className="stat-card__icon">💰</div>
+                        <div className="stat-card__content">
+                          <p className="stat-label">Total revenue</p>
+                          <p className="stat-value">{formatCurrency(totalRevenue)}</p>
+                          {totalBookings > 0 && (
+                            <p className="stat-meta">
+                              Avg: {formatCurrency(totalRevenue / totalBookings)}/booking
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="stat-card">
-                        <p className="stat-label">Active grounds</p>
-                        <p className="stat-value">{grounds.length}</p>
+                      <div className="stat-card stat-card--info">
+                        <div className="stat-card__icon">🏟️</div>
+                        <div className="stat-card__content">
+                          <p className="stat-label">Active grounds</p>
+                          <p className="stat-value">{grounds.length}</p>
+                        </div>
                       </div>
-                      <div className="stat-card">
-                        <p className="stat-label">Cities covered</p>
-                        <p className="stat-value">{new Set(grounds.map((g) => g.city)).size}</p>
+                      <div className="stat-card stat-card--warning">
+                        <div className="stat-card__icon">📍</div>
+                        <div className="stat-card__content">
+                          <p className="stat-label">Cities covered</p>
+                          <p className="stat-value">{new Set(grounds.map((g) => g.city)).size}</p>
+                        </div>
                       </div>
                     </div>
 
@@ -854,100 +1257,146 @@ function AdminPage() {
                       <div className="stats-table">
                         <div className="stats-table__header">
                           <h3>Performance by ground</h3>
-                          <span className="stats-table__caption">Bookings · Revenue</span>
+                          <span className="stats-table__caption">Sorted by total bookings</span>
                         </div>
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Ground</th>
-                              <th>City</th>
-                              <th>Bookings</th>
-                              <th>Revenue</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {statsByGround.map((row) => (
-                              <tr key={row.groundId}>
-                                <td>{row.groundName}</td>
-                                <td>{row.city}</td>
-                                <td>{row.bookingCount}</td>
-                                <td>{formatCurrency(row.revenue)}</td>
-                              </tr>
-                            ))}
-                            {!statsByGround.length && (
+                        <div className="stats-table__scroll">
+                          <table>
+                            <thead>
                               <tr>
-                                <td colSpan={4} className="status status--muted">No bookings yet.</td>
+                                <th align="left">Ground</th>
+                                <th align="left">City</th>
+                                <th align="right">Bookings</th>
+                                <th align="right">Revenue</th>
+                                <th align="right">Avg/Booking</th>
                               </tr>
-                            )}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              {statsByGround.map((row, index) => (
+                                <tr key={row.groundId}>
+                                  <td>
+                                    {index === 0 && row.bookingCount > 0 && (
+                                      <>
+                                        <span className="badge badge--success">Top</span>{' '}
+                                      </>
+                                    )}
+                                    {row.groundName}
+                                  </td>
+                                  <td>{row.city}</td>
+                                  <td align="right"><strong>{row.bookingCount}</strong></td>
+                                  <td align="right">{formatCurrency(row.revenue)}</td>
+                                  <td align="right" className="muted">
+                                    {row.bookingCount > 0
+                                      ? formatCurrency(row.revenue / row.bookingCount)
+                                      : '—'}
+                                  </td>
+                                </tr>
+                              ))}
+                              {!statsByGround.length && (
+                                <tr>
+                                  <td colSpan={5} className="status status--muted">No bookings yet.</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
                       <div className="stats-table">
                         <div className="stats-table__header">
                           <h3>Bookings by city</h3>
-                          <span className="stats-table__caption">Demand by location</span>
+                          <span className="stats-table__caption">Regional demand analysis</span>
                         </div>
+                        <div className="stats-table__scroll">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th align="left">City</th>
+                                <th align="right">Bookings</th>
+                                <th align="right">Revenue</th>
+                                <th align="right">Share</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {statsByCity.map((row, index) => (
+                                <tr key={row.city}>
+                                  <td>
+                                    {index === 0 && row.bookingCount > 0 && (
+                                      <>
+                                        <span className="badge badge--info">Lead</span>{' '}
+                                      </>
+                                    )}
+                                    {row.city}
+                                  </td>
+                                  <td align="right"><strong>{row.bookingCount}</strong></td>
+                                  <td align="right">{formatCurrency(row.revenue)}</td>
+                                  <td align="right" className="muted">
+                                    {totalRevenue > 0
+                                      ? `${Math.round((row.revenue / totalRevenue) * 100)}%`
+                                      : '0%'}
+                                  </td>
+                                </tr>
+                              ))}
+                              {!statsByCity.length && (
+                                <tr>
+                                  <td colSpan={4} className="status status--muted">No city data available.</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="stats-table stats-table--full">
+                      <div className="stats-table__header">
+                        <h3>Upcoming bookings</h3>
+                        <span className="stats-table__caption">Next 20 confirmed sessions</span>
+                      </div>
+                      <div className="stats-table__scroll">
                         <table>
                           <thead>
                             <tr>
-                              <th>City</th>
-                              <th>Bookings</th>
-                              <th>Revenue</th>
+                              <th align="left">Date</th>
+                              <th align="left">Time</th>
+                              <th align="left">Ground</th>
+                              <th align="left">City</th>
+                              <th align="left">Customer</th>
+                              <th align="left">Phone</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {statsByCity.map((row) => (
-                              <tr key={row.city}>
-                                <td>{row.city}</td>
-                                <td>{row.bookingCount}</td>
-                                <td>{formatCurrency(row.revenue)}</td>
-                              </tr>
-                            ))}
-                            {!statsByCity.length && (
+                            {statsUpcoming.map((row) => {
+                              const isToday = row.date === new Date().toISOString().split('T')[0];
+                              return (
+                                <tr key={row.id} className={isToday ? 'highlight' : ''}>
+                                  <td>
+                                    {isToday && (
+                                      <>
+                                        <span className="badge badge--warning">Today</span>{' '}
+                                      </>
+                                    )}
+                                    {new Date(row.date).toLocaleDateString('en-PK', {
+                                      weekday: 'short',
+                                      month: 'short',
+                                      day: 'numeric',
+                                    })}
+                                  </td>
+                                  <td><strong>{row.slot}</strong></td>
+                                  <td>{row.groundName}</td>
+                                  <td className="muted">{row.city}</td>
+                                  <td>{row.customerName}</td>
+                                  <td className="muted">{row.customerPhone}</td>
+                                </tr>
+                              );
+                            })}
+                            {!statsUpcoming.length && (
                               <tr>
-                                <td colSpan={3} className="status status--muted">No city data available.</td>
+                                <td colSpan={6} className="status status--muted">No upcoming bookings on the calendar.</td>
                               </tr>
                             )}
                           </tbody>
                         </table>
                       </div>
-                    </div>
-
-                    <div className="stats-table">
-                      <div className="stats-table__header">
-                        <h3>Upcoming bookings</h3>
-                        <span className="stats-table__caption">Next confirmed sessions</span>
-                      </div>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Slot</th>
-                            <th>Ground</th>
-                            <th>City</th>
-                            <th>Customer</th>
-                            <th>Phone</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {statsUpcoming.map((row) => (
-                            <tr key={row.id}>
-                              <td>{row.date}</td>
-                              <td>{row.slot}</td>
-                              <td>{row.groundName}</td>
-                              <td>{row.city}</td>
-                              <td>{row.customerName}</td>
-                              <td>{row.customerPhone}</td>
-                            </tr>
-                          ))}
-                          {!statsUpcoming.length && (
-                            <tr>
-                              <td colSpan={6} className="status status--muted">No upcoming bookings on the calendar.</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
                     </div>
                   </>
                 ) : (
@@ -1032,6 +1481,91 @@ function AdminPage() {
                         <img src={newGround.imagePreview} alt="New ground preview" />
                       </div>
                     ) : null}
+
+                    <div className="admin-form__row">
+                      <label>
+                        Sport Category
+                        <select
+                          required
+                          value={newGround.category}
+                          onChange={(event) =>
+                            setNewGround((current) => ({ ...current, category: event.target.value }))
+                          }
+                        >
+                          <option value="">Select sport...</option>
+                          {SPORT_CATEGORIES.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+
+                    <div className="features-section" style={{
+                      border: '1px solid rgba(148, 163, 184, 0.2)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      marginBottom: '16px',
+                      background: 'rgba(15, 23, 42, 0.3)'
+                    }}>
+                      <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Features</h3>
+                      {Object.entries(GROUND_FEATURES).map(([category, options]) => (
+                        <div key={category} style={{ marginBottom: '16px' }}>
+                          <h4 style={{ fontSize: '14px', marginBottom: '8px', color: 'rgba(148, 163, 184, 0.9)' }}>
+                            {category}
+                          </h4>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {options.map((feature) => {
+                              const isSelected = newGround.features?.[category]?.includes?.(feature) ||
+                                                newGround.features?.[category] === feature;
+                              return (
+                                <label
+                                  key={feature}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '6px 12px',
+                                    border: `1px solid ${isSelected ? '#10b981' : 'rgba(148, 163, 184, 0.3)'}`,
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                    fontSize: '13px',
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      setNewGround((current) => {
+                                        const features = { ...current.features };
+                                        if (category === 'Team Format' || category === 'Surface' || category === 'Venue Type') {
+                                          // Single choice
+                                          features[category] = e.target.checked ? feature : '';
+                                        } else {
+                                          // Multiple choice
+                                          if (!features[category]) features[category] = [];
+                                          if (e.target.checked) {
+                                            features[category] = [...features[category], feature];
+                                          } else {
+                                            features[category] = features[category].filter(f => f !== feature);
+                                          }
+                                        }
+                                        return { ...current, features };
+                                      });
+                                    }}
+                                    style={{ margin: 0 }}
+                                  />
+                                  <span>{feature}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
                     <label>
                       Description
                       <textarea
@@ -1086,26 +1620,125 @@ function AdminPage() {
                           </div>
                           <div className="admin-form admin-ground__form">
                             <div className="admin-ground__media">
-                              {ground.imagePreview ? (
-                                <img
-                                  src={ground.imagePreview}
-                                  alt={`${ground.name} preview`}
-                                  className="admin-ground__image"
-                                />
-                              ) : (
-                                <div className="admin-ground__placeholder">No photo yet</div>
-                              )}
-                              <label className="file-upload">
-                                Update photo
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(event) => {
-                                    const file = event.target.files?.[0] ?? null;
-                                    handleGroundImageSelect(ground.id, file);
-                                  }}
-                                />
-                              </label>
+                              <div className="admin-media-card admin-media-card--cover">
+                                <div className="admin-media-card__header">
+                                  <span>Cover photo</span>
+                                  {groundImageDrafts[ground.id] ? (
+                                    <span className="admin-media-card__status">Pending save</span>
+                                  ) : null}
+                                </div>
+                                <div className="admin-media-card__body">
+                                  {ground.imagePreview ? (
+                                    <img
+                                      src={ground.imagePreview}
+                                      alt={`${ground.name} cover`}
+                                      className="admin-media-card__image"
+                                    />
+                                  ) : (
+                                    <div className="admin-ground__placeholder">No photo yet</div>
+                                  )}
+                                </div>
+                                <label className="media-upload-button">
+                                  Replace cover
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    disabled={isGalleryBusy(ground.id) || busyGroundId === ground.id}
+                                    onChange={(event) => {
+                                      const file = event.target.files?.[0] ?? null;
+                                      handleGroundImageSelect(ground.id, file);
+                                      event.target.value = '';
+                                    }}
+                                  />
+                                </label>
+                              </div>
+                              <div className="admin-media-card admin-media-card--gallery">
+                                <div className="admin-media-card__header">
+                                  <span>Gallery</span>
+                                  <label className="media-upload-button media-upload-button--inline">
+                                    Add photos
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      multiple
+                                      disabled={isGalleryBusy(ground.id)}
+                                      onChange={(event) => {
+                                        const files = event.target.files;
+                                        if (files && files.length) {
+                                          handleGalleryUpload(ground.id, files);
+                                        }
+                                        event.target.value = '';
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                                <p className="admin-media-card__hint">
+                                  Inspire players with action shots and facility angles.
+                                </p>
+                                <div className="admin-media-grid">
+                                  {ground.gallery && ground.gallery.length ? (
+                                    ground.gallery.map((image, index) => {
+                                      const isCover = ground.imageUrl === image.imageUrl;
+                                      return (
+                                        <div
+                                          key={image.id}
+                                          className={`admin-media-thumb${isCover ? ' admin-media-thumb--active' : ''}`}
+                                        >
+                                          <img src={image.preview} alt={`Gallery ${index + 1}`} />
+                                          <div className="admin-media-thumb__overlay">
+                                            <span className="admin-media-thumb__order">{index + 1}</span>
+                                            <div className="admin-media-thumb__actions">
+                                              <button
+                                                type="button"
+                                                className="chip-button"
+                                                onClick={() => handleSetCover(ground.id, image.imageUrl)}
+                                                disabled={isGalleryBusy(ground.id) || isCover}
+                                              >
+                                                {isCover ? 'Current cover' : 'Make cover'}
+                                              </button>
+                                              <div className="admin-media-thumb__reorder">
+                                                <button
+                                                  type="button"
+                                                  className="icon-button"
+                                                  onClick={() => handleGalleryMove(ground.id, image.id, 'left')}
+                                                  disabled={isGalleryBusy(ground.id) || index === 0}
+                                                  aria-label="Move earlier"
+                                                >
+                                                  &lt;
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="icon-button"
+                                                  onClick={() => handleGalleryMove(ground.id, image.id, 'right')}
+                                                  disabled={
+                                                    isGalleryBusy(ground.id) ||
+                                                    index === (ground.gallery?.length || 0) - 1
+                                                  }
+                                                  aria-label="Move later"
+                                                >
+                                                  &gt;
+                                                </button>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                className="chip-button chip-button--danger"
+                                                onClick={() => handleGalleryDelete(ground.id, image.id)}
+                                                disabled={isGalleryBusy(ground.id)}
+                                              >
+                                                Remove
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })
+                                  ) : (
+                                    <div className="admin-media-empty">
+                                      <p>No gallery photos yet. Add a few to show the vibe.</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <div className="admin-form__row">
                               <label>
@@ -1158,6 +1791,93 @@ function AdminPage() {
                                 }
                               />
                             </label>
+
+                            <div className="admin-form__row">
+                              <label>
+                                Sport Category
+                                <select
+                                  value={ground.category || ''}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'category', event.target.value)
+                                  }
+                                >
+                                  <option value="">Select sport...</option>
+                                  {SPORT_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>
+                                      {cat}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                            </div>
+
+                            <div className="features-section" style={{
+                              border: '1px solid rgba(148, 163, 184, 0.2)',
+                              borderRadius: '8px',
+                              padding: '16px',
+                              marginBottom: '16px',
+                              background: 'rgba(15, 23, 42, 0.3)'
+                            }}>
+                              <h4 style={{ marginBottom: '16px', fontSize: '16px' }}>Features</h4>
+                              {Object.entries(GROUND_FEATURES).map(([category, options]) => (
+                                <div key={category} style={{ marginBottom: '16px' }}>
+                                  <h5 style={{ fontSize: '14px', marginBottom: '8px', color: 'rgba(148, 163, 184, 0.9)' }}>
+                                    {category}
+                                  </h5>
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {options.map((feature) => {
+                                      const isSelected = ground.features?.[category]?.includes?.(feature) ||
+                                                        ground.features?.[category] === feature;
+                                      return (
+                                        <label
+                                          key={feature}
+                                          style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            padding: '6px 12px',
+                                            border: `1px solid ${isSelected ? '#10b981' : 'rgba(148, 163, 184, 0.3)'}`,
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                            fontSize: '13px',
+                                          }}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            onChange={(e) => {
+                                              setGrounds((prev) =>
+                                                prev.map((g) => {
+                                                  if (g.id !== ground.id) return g;
+                                                  const features = { ...g.features };
+                                                  if (category === 'Team Format' || category === 'Surface' || category === 'Venue Type') {
+                                                    // Single choice
+                                                    features[category] = e.target.checked ? feature : '';
+                                                  } else {
+                                                    // Multiple choice
+                                                    if (!features[category]) features[category] = [];
+                                                    if (e.target.checked) {
+                                                      features[category] = [...features[category], feature];
+                                                    } else {
+                                                      features[category] = features[category].filter(f => f !== feature);
+                                                    }
+                                                  }
+                                                  return { ...g, features };
+                                                })
+                                              );
+                                            }}
+                                            style={{ margin: 0 }}
+                                          />
+                                          <span>{feature}</span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
                             <label>
                               Description
                               <textarea
@@ -1176,8 +1896,6 @@ function AdminPage() {
                 </section>
               </>
             )}
-          </>
-        )
           </>
         )}
       </main>

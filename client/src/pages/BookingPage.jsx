@@ -7,9 +7,14 @@ import '../App.css';
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
 
 const initialDate = () => {
-  const today = new Date();
-  today.setHours(today.getHours() + 5);
-  return today.toISOString().split('T')[0];
+  // Get current date in Pakistani timezone (PKT = UTC+5)
+  const now = new Date();
+  const pktOffset = 5 * 60; // PKT is UTC+5
+  const pktTime = new Date(now.getTime() + (pktOffset + now.getTimezoneOffset()) * 60000);
+  const year = pktTime.getFullYear();
+  const month = String(pktTime.getMonth() + 1).padStart(2, '0');
+  const day = String(pktTime.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const resolveImageUrl = (raw) => {
@@ -30,6 +35,7 @@ function BookingPage() {
   const [isLoadingGrounds, setIsLoadingGrounds] = useState(true);
   const [cityButtons, setCityButtons] = useState([]);
   const [cityFilter, setCityFilter] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState(null);
   const [selectedGroundId, setSelectedGroundId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [availability, setAvailability] = useState([]);
@@ -72,11 +78,18 @@ function BookingPage() {
   } = useAuth();
 
   const filteredGrounds = useMemo(() => {
-    if (!cityFilter) {
-      return grounds;
+    let filtered = grounds;
+
+    if (cityFilter) {
+      filtered = filtered.filter((ground) => ground.city === cityFilter);
     }
-    return grounds.filter((ground) => ground.city === cityFilter);
-  }, [grounds, cityFilter]);
+
+    if (categoryFilter) {
+      filtered = filtered.filter((ground) => ground.category === categoryFilter);
+    }
+
+    return filtered;
+  }, [grounds, cityFilter, categoryFilter]);
 
   const selectedGround = useMemo(
     () => filteredGrounds.find((ground) => ground.id === selectedGroundId) ?? null,
@@ -265,7 +278,38 @@ function BookingPage() {
           throw new Error('Unable to load availability.');
         }
         const data = await response.json();
-        setAvailability(data.availability);
+
+        // Additional client-side filtering for past times (Pakistani timezone - PKT = UTC+5)
+        const now = new Date();
+        const pktOffset = 5 * 60; // PKT is UTC+5
+        const pktTime = new Date(now.getTime() + (pktOffset + now.getTimezoneOffset()) * 60000);
+        const pktHours = pktTime.getHours();
+        const pktMinutes = pktTime.getMinutes();
+
+        const pktYear = pktTime.getFullYear();
+        const pktMonth = String(pktTime.getMonth() + 1).padStart(2, '0');
+        const pktDay = String(pktTime.getDate()).padStart(2, '0');
+        const todayPKT = `${pktYear}-${pktMonth}-${pktDay}`;
+
+        const isToday = selectedDate === todayPKT;
+
+        const filteredAvailability = (data.availability || []).map((item) => {
+          let available = item.available;
+
+          // If it's today, double-check if the slot time has passed
+          if (isToday && available) {
+            const [slotHour, slotMinute] = item.slot.split(':').map(Number);
+
+            // Slot is unavailable if it has already started or passed
+            if (slotHour < pktHours || (slotHour === pktHours && slotMinute <= pktMinutes)) {
+              available = false;
+            }
+          }
+
+          return { ...item, available };
+        });
+
+        setAvailability(filteredAvailability);
       } catch (error) {
         console.error(error);
         setServerMessage({
@@ -683,6 +727,40 @@ function BookingPage() {
             </div>
           </div>
 
+          <div className="ground-list__header" style={{ marginTop: '2rem' }}>
+            <div>
+              <h3>Filter by sport</h3>
+              <p className="ground-list__subhead">
+                Find grounds for your favorite sport
+              </p>
+            </div>
+            <div className="category-filters">
+              <button
+                type="button"
+                className={`category-filter ${!categoryFilter ? 'category-filter--active' : ''}`}
+                onClick={() => setCategoryFilter(null)}
+              >
+                All Sports
+              </button>
+              {['Football', 'Cricket', 'Padel', 'Futsal', 'Basketball', 'Tennis'].map((cat) => {
+                const isActive = cat === categoryFilter;
+                const count = grounds.filter(g => g.category === cat).length;
+                if (count === 0) return null;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`category-filter ${isActive ? 'category-filter--active' : ''}`}
+                    onClick={() => setCategoryFilter(cat)}
+                  >
+                    {cat}
+                    <span className="category-filter__count">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {isLoadingGrounds ? (
             <p className="status">Loading grounds...</p>
           ) : filteredGrounds.length === 0 ? (
@@ -714,6 +792,13 @@ function BookingPage() {
                         PKR {ground.pricePerHour.toLocaleString()}
                         <span> / hour</span>
                       </p>
+                      <Link
+                        to={`/ground/${ground.id}`}
+                        className="ground-card__details-link"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View details →
+                      </Link>
                     </div>
                   </button>
                 );
@@ -797,12 +882,12 @@ function BookingPage() {
                         type="button"
                         key={item.slot}
                         className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''}`}
-                        disabled={!item.isAvailable || isLoadingAvailability}
+                        disabled={!item.available || isLoadingAvailability}
                         onClick={() => handleSlotSelect(item.slot)}
                       >
                         <span>{item.slot}</span>
                         <span className="slot__status">
-                          {item.isAvailable ? 'Open' : 'Booked'}
+                          {item.available ? 'Open' : 'Booked'}
                         </span>
                       </button>
                     );

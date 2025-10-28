@@ -7,6 +7,26 @@ const { sendBookingNotificationEmail, sendCancellationNotificationEmail } = requ
 
 const router = express.Router();
 
+// Get user's personal booking history (must be before /:bookingId routes)
+router.get('/user/history', authenticate, (req, res) => {
+  const db = getDb();
+  const statement = db.prepare(
+    `SELECT b.id, b.date, b.slot, b.status,
+            b.price_at_booking AS priceAtBooking,
+            g.id AS groundId,
+            g.name AS groundName,
+            g.city,
+            g.location
+     FROM bookings b
+     JOIN grounds g ON g.id = b.ground_id
+     WHERE b.user_uid = ?
+     ORDER BY b.date DESC, b.slot ASC`
+  );
+
+  const bookings = statement.all(req.user.uid);
+  res.json(bookings);
+});
+
 router.post('/', authenticate, (req, res) => {
   const db = getDb();
   const { groundId, date, slot } = req.body;
@@ -168,26 +188,6 @@ router.delete('/:bookingId', authenticate, (req, res) => {
   });
 
   res.json({ success: true });
-});
-
-// Get user's personal booking history
-router.get('/user/history', authenticate, (req, res) => {
-  const db = getDb();
-  const statement = db.prepare(
-    `SELECT b.id, b.date, b.slot, b.status,
-            b.price_at_booking AS priceAtBooking,
-            g.id AS groundId,
-            g.name AS groundName,
-            g.city,
-            g.location
-     FROM bookings b
-     JOIN grounds g ON g.id = b.ground_id
-     WHERE b.user_uid = ?
-     ORDER BY b.date DESC, b.slot ASC`
-  );
-
-  const bookings = statement.all(req.user.uid);
-  res.json(bookings);
 });
 
 // Get all bookings (admin only)

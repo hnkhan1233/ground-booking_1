@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { API_BASE_URL } from '../config.js';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import '../App.css';
+import { API_BASE_URL } from '../../../config.js';
+import { useAuth } from '../../../contexts/AuthContext.jsx';
+import '../../../App.css';
 
 function AccountPage() {
   const { user, initializing, getIdToken, logout } = useAuth();

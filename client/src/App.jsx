@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import BookingPage from './pages/BookingPage.jsx';
-import AdminPage from './pages/AdminPage.jsx';
-import AccountPage from './pages/AccountPage.jsx';
-import GroundDetailPage from './pages/GroundDetailPage.jsx';
+import BookingPage from './features/bookings/pages/BookingPage.jsx';
+import AdminPage from './features/grounds/pages/AdminPage.jsx';
+import AccountPage from './features/account/pages/AccountPage.jsx';
+import GroundDetailPage from './features/grounds/pages/GroundDetailPage.jsx';
 
 function App() {
   return (

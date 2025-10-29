@@ -1,6 +1,6 @@
 import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { API_BASE_URL } from '../config.js';
-import '../App.css';
+import { API_BASE_URL } from '../../../config.js';
+import '../../../App.css';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const SLOT_DURATIONS = [15, 30, 45, 60, 90, 120];

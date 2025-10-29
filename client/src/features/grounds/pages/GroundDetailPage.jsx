@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import { API_BASE_URL } from '../config.js';
-import { getFeatureIcon, getCategoryColor } from '../utils/featureIcons.js';
-import '../App.css';
+import { useAuth } from '../../../contexts/AuthContext.jsx';
+import { API_BASE_URL } from '../../../config.js';
+import { getFeatureIcon, getCategoryColor } from '../../../utils/featureIcons.js';
+import '../../../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
 

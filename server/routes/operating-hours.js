@@ -65,6 +65,64 @@ router.put('/ground/:groundId/day/:dayOfWeek', authenticate, requireAdmin, (req,
   res.json({ success: true, message: `Operating hours updated for ${DAYS[dayOfWeek]}` });
 });
 
+// Batch update operating hours for a ground (all days at once)
+router.put('/ground/:groundId/batch', authenticate, requireAdmin, (req, res) => {
+  const db = getDb();
+  const { groundId } = req.params;
+  const { hours } = req.body;
+
+  if (!Array.isArray(hours) || hours.length === 0) {
+    return res.status(400).json({ error: 'Hours array is required and must not be empty.' });
+  }
+
+  try {
+    const stmt = db.prepare(
+      `INSERT INTO ground_operating_hours
+      (ground_id, day_of_week, start_time, end_time, slot_duration_minutes, is_closed)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(ground_id, day_of_week) DO UPDATE SET
+      start_time = excluded.start_time,
+      end_time = excluded.end_time,
+      slot_duration_minutes = excluded.slot_duration_minutes,
+      is_closed = excluded.is_closed,
+      updated_at = CURRENT_TIMESTAMP`
+    );
+
+    for (const hour of hours) {
+      const { day_of_week, start_time, end_time, slot_duration_minutes, is_closed } = hour;
+
+      // Validate day_of_week
+      if (day_of_week < 0 || day_of_week > 6) {
+        return res.status(400).json({ error: `Invalid day of week: ${day_of_week}. Must be 0-6.` });
+      }
+
+      // Validate times if not closed
+      if (!is_closed) {
+        if (!start_time || !end_time) {
+          return res.status(400).json({ error: `Start and end times required for ${DAYS[day_of_week]}.` });
+        }
+        if (slot_duration_minutes < 15 || slot_duration_minutes > 480) {
+          return res.status(400).json({ error: `Slot duration for ${DAYS[day_of_week]} must be 15-480 minutes.` });
+        }
+      }
+
+      stmt.run(
+        groundId,
+        day_of_week,
+        start_time || null,
+        end_time || null,
+        slot_duration_minutes || 60,
+        is_closed ? 1 : 0
+      );
+    }
+
+    res.json({ success: true, message: 'Operating hours updated for all days.' });
+  } catch (error) {
+    console.error('Batch operating hours update error:', error);
+    res.status(500).json({ error: 'Failed to update operating hours.' });
+  }
+});
+
 // Get available time slots for a ground on a specific date
 router.get('/ground/:groundId/available-slots', authenticate, (req, res) => {
   const db = getDb();

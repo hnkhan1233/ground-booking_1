@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config.js';
 import { PAKISTAN_CITIES } from '../constants/cities.js';
@@ -94,6 +94,8 @@ function AdminPage() {
   const [groundImageDrafts, setGroundImageDrafts] = useState({});
   const [galleryBusy, setGalleryBusy] = useState({});
   const [busyGroundId, setBusyGroundId] = useState(null);
+  const operatingHoursRefs = useRef({});
+  const [expandedGroundId, setExpandedGroundId] = useState(null);
   const [flash, setFlash] = useState(null);
   const [authError, setAuthError] = useState('');
   const [authSuccessMessage, setAuthSuccessMessage] = useState('');
@@ -645,6 +647,45 @@ function AdminPage() {
     return formData;
   };
 
+  const saveOperatingHours = async (groundId) => {
+    const ohRef = operatingHoursRefs.current[groundId];
+    if (!ohRef || !ohRef.getOperatingHoursData) {
+      return; // No changes to save
+    }
+
+    const hoursData = ohRef.getOperatingHoursData();
+    if (!hoursData || hoursData.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await authorizedFetch(
+        `${API_BASE_URL}/api/operating-hours/ground/${groundId}/batch`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ hours: hoursData }),
+        }
+      );
+
+      if (await handleAuthFailure(response)) {
+        throw new Error('Authentication failed');
+      }
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Failed to save operating hours.');
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Operating hours save error:', err);
+      throw err;
+    }
+  };
+
   async function handleSave(groundId) {
     const ground = grounds.find((item) => item.id === groundId);
     if (!ground) {
@@ -693,7 +734,17 @@ function AdminPage() {
         const { [groundId]: _removed, ...rest } = prev;
         return rest;
       });
-      showFlash('success', 'Ground details saved.');
+
+      // Save operating hours if any changes were made
+      try {
+        await saveOperatingHours(groundId);
+      } catch (ohErr) {
+        console.error('Could not save operating hours:', ohErr);
+        showFlash('warning', 'Ground saved, but operating hours failed. Please retry operating hours.');
+        return;
+      }
+
+      showFlash('success', 'Ground details and operating hours saved.');
     } catch (err) {
       console.error(err);
       showFlash('error', err.message);
@@ -1504,19 +1555,20 @@ function AdminPage() {
                     </div>
 
                     <div className="features-section" style={{
-                      border: '1px solid rgba(148, 163, 184, 0.2)',
-                      borderRadius: '8px',
-                      padding: '16px',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '0.75rem',
+                      padding: '10px',
                       marginBottom: '16px',
-                      background: 'rgba(15, 23, 42, 0.3)'
+                      background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.5))',
+                      backdropFilter: 'blur(10px)'
                     }}>
-                      <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Features</h3>
+                      <h3 style={{ marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Features</h3>
                       {Object.entries(GROUND_FEATURES).map(([category, options]) => (
-                        <div key={category} style={{ marginBottom: '16px' }}>
-                          <h4 style={{ fontSize: '14px', marginBottom: '8px', color: 'rgba(148, 163, 184, 0.9)' }}>
+                        <div key={category} style={{ marginBottom: '8px' }}>
+                          <h4 style={{ fontSize: '11px', marginBottom: '4px', color: 'rgba(226, 232, 240, 0.6)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                             {category}
                           </h4>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '4px' }}>
                             {options.map((feature) => {
                               const isSelected = newGround.features?.[category]?.includes?.(feature) ||
                                                 newGround.features?.[category] === feature;
@@ -1524,15 +1576,17 @@ function AdminPage() {
                                 <label
                                   key={feature}
                                   style={{
-                                    display: 'inline-flex',
+                                    display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '6px 12px',
-                                    border: `1px solid ${isSelected ? '#10b981' : 'rgba(148, 163, 184, 0.3)'}`,
-                                    borderRadius: '6px',
+                                    gap: '5px',
+                                    padding: '5px 7px',
+                                    border: `1px solid ${isSelected ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                    borderRadius: '0.5rem',
                                     cursor: 'pointer',
-                                    background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                                    fontSize: '13px',
+                                    background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.4)',
+                                    fontSize: '11px',
+                                    color: isSelected ? '#60a5fa' : 'rgba(226, 232, 240, 0.7)',
+                                    transition: 'all 0.2s ease',
                                   }}
                                 >
                                   <input
@@ -1556,7 +1610,7 @@ function AdminPage() {
                                         return { ...current, features };
                                       });
                                     }}
-                                    style={{ margin: 0 }}
+                                    style={{ margin: 0, cursor: 'pointer' }}
                                   />
                                   <span>{feature}</span>
                                 </label>
@@ -1596,30 +1650,80 @@ function AdminPage() {
                     </p>
                   ) : (
                     <div className="admin-ground-list">
-                      {grounds.map((ground) => (
-                        <div className="admin-ground" key={ground.id}>
-                          <div className="admin-ground__header">
-                            <h3>#{ground.id}</h3>
-                            <div className="admin-ground__actions">
-                              <button
-                                type="button"
-                                className="ghost-button"
-                                onClick={() => handleSave(ground.id)}
-                                disabled={busyGroundId === ground.id}
-                              >
-                                {busyGroundId === ground.id ? 'Saving…' : 'Save'}
-                              </button>
-                              <button
-                                type="button"
-                                className="danger-button"
-                                onClick={() => handleDelete(ground.id)}
-                                disabled={busyGroundId === ground.id}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                          <div className="admin-form admin-ground__form">
+                      {grounds.map((ground) => {
+                        const isExpanded = expandedGroundId === ground.id;
+                        return (
+                          <div key={ground.id} style={{ marginBottom: '8px' }}>
+                            {/* Dropdown Header */}
+                            <button
+                              type="button"
+                              onClick={() => setExpandedGroundId(isExpanded ? null : ground.id)}
+                              style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                background: isExpanded ? 'linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(59, 130, 246, 0.2))' : 'linear-gradient(135deg, rgba(15, 23, 42, 0.5), rgba(30, 41, 59, 0.4))',
+                                border: `1px solid ${isExpanded ? 'rgba(59, 130, 246, 0.4)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                color: '#f8fafc',
+                              }}
+                            >
+                              <div style={{ textAlign: 'left', flex: 1 }}>
+                                <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#f8fafc' }}>
+                                  {ground.name || `Ground #${ground.id}`}
+                                </h3>
+                                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(226, 232, 240, 0.7)' }}>
+                                  {ground.location}, {ground.city} • ₨{ground.pricePerHour}/hr
+                                </p>
+                              </div>
+                              <span style={{
+                                fontSize: '18px',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s ease',
+                                marginLeft: '16px',
+                                color: 'rgba(226, 232, 240, 0.8)',
+                              }}>
+                                ▼
+                              </span>
+                            </button>
+
+                            {/* Expanded Content */}
+                            {isExpanded && (
+                              <div style={{
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.6))',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderTop: 'none',
+                                borderRadius: '0 0 12px 12px',
+                                color: '#f8fafc',
+                              }}>
+                                <div className="admin-ground" style={{ background: 'transparent', borderRadius: 0, border: 'none' }}>
+                                  <div className="admin-ground__header" style={{ marginBottom: '16px' }}>
+                                    <div></div>
+                                    <div className="admin-ground__actions">
+                                      <button
+                                        type="button"
+                                        className="ghost-button"
+                                        onClick={() => handleSave(ground.id)}
+                                        disabled={busyGroundId === ground.id}
+                                      >
+                                        {busyGroundId === ground.id ? 'Saving…' : 'Save'}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="danger-button"
+                                        onClick={() => handleDelete(ground.id)}
+                                        disabled={busyGroundId === ground.id}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="admin-form admin-ground__form">
                             <div className="admin-ground__media">
                               <div className="admin-media-card admin-media-card--cover">
                                 <div className="admin-media-card__header">
@@ -1813,19 +1917,20 @@ function AdminPage() {
                             </div>
 
                             <div className="features-section" style={{
-                              border: '1px solid rgba(148, 163, 184, 0.2)',
-                              borderRadius: '8px',
-                              padding: '16px',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '0.75rem',
+                              padding: '10px',
                               marginBottom: '16px',
-                              background: 'rgba(15, 23, 42, 0.3)'
+                              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.5))',
+                              backdropFilter: 'blur(10px)'
                             }}>
-                              <h4 style={{ marginBottom: '16px', fontSize: '16px' }}>Features</h4>
+                              <h4 style={{ marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Features</h4>
                               {Object.entries(GROUND_FEATURES).map(([category, options]) => (
-                                <div key={category} style={{ marginBottom: '16px' }}>
-                                  <h5 style={{ fontSize: '14px', marginBottom: '8px', color: 'rgba(148, 163, 184, 0.9)' }}>
+                                <div key={category} style={{ marginBottom: '8px' }}>
+                                  <h5 style={{ fontSize: '11px', marginBottom: '4px', color: 'rgba(226, 232, 240, 0.6)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                                     {category}
                                   </h5>
-                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '4px' }}>
                                     {options.map((feature) => {
                                       const isSelected = ground.features?.[category]?.includes?.(feature) ||
                                                         ground.features?.[category] === feature;
@@ -1833,15 +1938,17 @@ function AdminPage() {
                                         <label
                                           key={feature}
                                           style={{
-                                            display: 'inline-flex',
+                                            display: 'flex',
                                             alignItems: 'center',
-                                            gap: '6px',
-                                            padding: '6px 12px',
-                                            border: `1px solid ${isSelected ? '#10b981' : 'rgba(148, 163, 184, 0.3)'}`,
-                                            borderRadius: '6px',
+                                            gap: '5px',
+                                            padding: '5px 7px',
+                                            border: `1px solid ${isSelected ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                            borderRadius: '0.5rem',
                                             cursor: 'pointer',
-                                            background: isSelected ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                                            fontSize: '13px',
+                                            background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.4)',
+                                            fontSize: '11px',
+                                            color: isSelected ? '#60a5fa' : 'rgba(226, 232, 240, 0.7)',
+                                            transition: 'all 0.2s ease',
                                           }}
                                         >
                                           <input
@@ -1868,7 +1975,7 @@ function AdminPage() {
                                                 })
                                               );
                                             }}
-                                            style={{ margin: 0 }}
+                                            style={{ margin: 0, cursor: 'pointer' }}
                                           />
                                           <span>{feature}</span>
                                         </label>
@@ -1881,6 +1988,9 @@ function AdminPage() {
 
                             <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(148, 163, 184, 0.3)' }}>
                               <OperatingHoursConfigurator
+                                ref={(ref) => {
+                                  operatingHoursRefs.current[ground.id] = ref;
+                                }}
                                 groundId={ground.id}
                                 getIdToken={getIdToken}
                               />
@@ -1896,9 +2006,13 @@ function AdminPage() {
                                 }
                               />
                             </label>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </section>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { API_BASE_URL } from '../config.js';
 import '../App.css';
 
@@ -28,11 +28,9 @@ function generateTimeOptions() {
   return options;
 }
 
-function OperatingHoursConfigurator({ groundId, getIdToken }) {
+const OperatingHoursConfigurator = forwardRef(function OperatingHoursConfigurator({ groundId, getIdToken }, ref) {
   const [hours, setHours] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
 
   useEffect(() => {
@@ -42,7 +40,6 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
   const fetchOperatingHours = async () => {
     try {
       setLoading(true);
-      setMessage(null);
       const token = await getIdToken();
 
       if (!token) {
@@ -62,7 +59,6 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
       setHours(data);
     } catch (error) {
       console.error('Operating hours fetch error:', error);
-      setMessage({ type: 'error', text: error.message || 'Could not load operating hours' });
     } finally {
       setLoading(false);
     }
@@ -84,99 +80,30 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
     );
   };
 
-  const handleSave = async (dayOfWeek) => {
-    const dayHours = hours.find((h) => h.day_of_week === dayOfWeek);
-    if (!dayHours) return;
-
-    try {
-      setSaving(true);
-      const token = await getIdToken();
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/operating-hours/ground/${groundId}/day/${dayOfWeek}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            startTime: dayHours.start_time,
-            endTime: dayHours.end_time,
-            slotDurationMinutes: dayHours.slot_duration_minutes,
-            isClosed: dayHours.is_closed,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error('Failed to save');
-
-      setMessage({ type: 'success', text: `${DAYS[dayOfWeek]} saved successfully` });
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error(error);
-      setMessage({ type: 'error', text: 'Failed to save operating hours' });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleApplyToAll = async () => {
-    if (!expandedDay && expandedDay !== 0) return;
-
-    const sourceDay = hours[expandedDay];
+  // Apply settings from one day to all other days
+  const applyToAllDays = (dayOfWeek) => {
+    const sourceDay = hours.find((h) => h.day_of_week === dayOfWeek);
     if (!sourceDay) return;
 
-    try {
-      setSaving(true);
-
-      // Apply to all days
-      for (let day = 0; day < 7; day++) {
-        if (day === expandedDay) continue;
-
-        const token = await getIdToken();
-        await fetch(
-          `${API_BASE_URL}/api/operating-hours/ground/${groundId}/day/${day}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              startTime: sourceDay.start_time,
-              endTime: sourceDay.end_time,
-              slotDurationMinutes: sourceDay.slot_duration_minutes,
-              isClosed: sourceDay.is_closed,
-            }),
-          }
-        );
-      }
-
-      // Update local state
-      setHours((prev) =>
-        prev.map((h) =>
-          h.day_of_week === expandedDay
-            ? h
-            : {
-                ...h,
-                start_time: sourceDay.start_time,
-                end_time: sourceDay.end_time,
-                slot_duration_minutes: sourceDay.slot_duration_minutes,
-                is_closed: sourceDay.is_closed,
-              }
-        )
-      );
-
-      setMessage({ type: 'success', text: 'Settings applied to all days' });
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error(error);
-      setMessage({ type: 'error', text: 'Failed to apply settings to all days' });
-    } finally {
-      setSaving(false);
-    }
+    setHours((prev) =>
+      prev.map((h) =>
+        h.day_of_week === dayOfWeek
+          ? h
+          : {
+              ...h,
+              start_time: sourceDay.start_time,
+              end_time: sourceDay.end_time,
+              slot_duration_minutes: sourceDay.slot_duration_minutes,
+              is_closed: sourceDay.is_closed,
+            }
+      )
+    );
   };
+
+  // Expose getOperatingHoursData through ref
+  useImperativeHandle(ref, () => ({
+    getOperatingHoursData: () => hours,
+  }));
 
   if (loading) {
     return <div className="oh-loading">Loading operating hours...</div>;
@@ -184,12 +111,6 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
 
   return (
     <div className="operating-hours-configurator">
-      {message && (
-        <div className={`oh-message oh-message--${message.type}`}>
-          {message.text}
-        </div>
-      )}
-
       <div className="oh-header">
         <h3>Operating Hours by Day</h3>
         <p className="oh-subtitle">Set opening hours and slot duration for each day</p>
@@ -289,16 +210,8 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
 
                 <div className="oh-actions">
                   <button
-                    className="oh-btn oh-btn--save"
-                    onClick={() => handleSave(dayHours.day_of_week)}
-                    disabled={saving}
-                  >
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
                     className="oh-btn oh-btn--apply-all"
-                    onClick={handleApplyToAll}
-                    disabled={saving}
+                    onClick={() => applyToAllDays(dayHours.day_of_week)}
                   >
                     Apply to All Days
                   </button>
@@ -325,6 +238,6 @@ function OperatingHoursConfigurator({ groundId, getIdToken }) {
       </div>
     </div>
   );
-}
+});
 
 export default OperatingHoursConfigurator;

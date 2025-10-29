@@ -1661,8 +1661,8 @@ function AdminPage() {
                               style={{
                                 width: '100%',
                                 padding: '14px 16px',
-                                background: isExpanded ? 'linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(59, 130, 246, 0.2))' : 'linear-gradient(135deg, rgba(15, 23, 42, 0.5), rgba(30, 41, 59, 0.4))',
-                                border: `1px solid ${isExpanded ? 'rgba(59, 130, 246, 0.4)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                background: isExpanded ? 'radial-gradient(circle at 20% 20%, #1e3a8a, #0f1729 65%)' : 'radial-gradient(circle at 20% 20%, #11193a, #05060f 65%)',
+                                border: `1px solid ${isExpanded ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.3)'}`,
                                 borderRadius: '12px',
                                 cursor: 'pointer',
                                 display: 'flex',

@@ -155,8 +155,8 @@ function AccountPage() {
   };
 
   return (
-    <div className="account">
-      <div className="account__header">
+    <div className="app app--sporty account--sporty">
+      <div className="account__header account__header--sporty">
         <div>
           <h1>My account</h1>
           <p>Manage your profile and booking history.</p>
@@ -169,7 +169,7 @@ function AccountPage() {
         </div>
       </div>
 
-      <div className="account-tabs">
+      <div className="account-tabs account-tabs--sporty">
         <button
           className={`account-tab ${activeTab === 'account' ? 'account-tab--active' : ''}`}
           onClick={() => handleTabChange('account')}
@@ -184,7 +184,7 @@ function AccountPage() {
         </button>
       </div>
 
-      <div className="account-card">
+      <div className="account-card account-card--sporty">
         {activeTab === 'account' && (
           isLoading ? (
             <p className="status">Loading profile…</p>

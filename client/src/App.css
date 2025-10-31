@@ -1393,6 +1393,253 @@
   color: #991b1b;
 }
 
+/* Account Page Sporty Theme */
+.account--sporty {
+  background: radial-gradient(circle at 20% 20%, #11193a, #05060f 65%);
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.account--sporty .account__header--sporty {
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem 6vw 1.5rem;
+  color: #f8fafc;
+  z-index: 1;
+}
+
+.account--sporty .account__header--sporty::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(37, 99, 235, 0.55) 55%, rgba(125, 211, 252, 0.2));
+  z-index: -1;
+}
+
+.account--sporty .account__header--sporty::after {
+  content: '';
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.22) 0%, rgba(59, 130, 246, 0) 70%);
+  top: -200px;
+  right: -180px;
+  z-index: -1;
+}
+
+.account--sporty .account__header--sporty > div {
+  position: relative;
+  z-index: 1;
+}
+
+.account--sporty .account__header--sporty h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.account--sporty .account__header--sporty p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.75);
+  font-size: 1rem;
+}
+
+.account--sporty .account__actions {
+  position: relative;
+  z-index: 1;
+}
+
+.account-card--sporty {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  flex: 1;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 3rem 6vw 4rem;
+  box-shadow: 0 -20px 60px -30px rgba(15, 23, 42, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  color: #e2e8f0;
+}
+
+.account--sporty .account-form label {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.account--sporty .account-form input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #f1f5f9;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.account--sporty .account-form input::placeholder {
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.account--sporty .account-form input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.account--sporty .account-form input:disabled {
+  background: rgba(15, 23, 42, 0.4);
+  color: rgba(226, 232, 240, 0.5);
+  cursor: not-allowed;
+}
+
+.account-tabs--sporty {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  padding: 0.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 20px 40px -35px rgba(15, 23, 42, 0.9);
+  display: inline-flex;
+}
+
+.account--sporty .account-tab {
+  border: none;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.7);
+  font-weight: 600;
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.95rem;
+}
+
+.account--sporty .account-tab:hover {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.account--sporty .account-tab--active {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.35), rgba(129, 140, 248, 0.35));
+  color: #f8fafc;
+  box-shadow: 0 18px 35px -28px rgba(59, 130, 246, 0.85);
+}
+
+.account--sporty .bookings-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.account--sporty .bookings-empty a {
+  color: #60a5fa;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.account--sporty .bookings-empty a:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.account--sporty .bookings-summary {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.account--sporty .summary-label {
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.account--sporty .summary-value {
+  color: #f1f5f9;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.account--sporty .bookings-table {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.account--sporty .bookings-header {
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+  color: rgba(226, 232, 240, 0.85);
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  gap: 1rem;
+}
+
+.account--sporty .bookings-row {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+  padding: 1rem;
+  transition: background 0.2s ease;
+}
+
+.account--sporty .bookings-row:hover {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.account--sporty .bookings-row:last-child {
+  border-bottom: none;
+}
+
+.account--sporty .ground-info strong {
+  color: #f1f5f9;
+}
+
+.account--sporty .ground-info small {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.account--sporty .date-info {
+  color: #e2e8f0;
+}
+
+.account--sporty .date-info small {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.account--sporty .col-price {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.account--sporty .status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.account--sporty .status-confirmed {
+  background: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+.account--sporty .status-cancelled {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
 .primary-button {
   border: none;
   border-radius: 0.95rem;

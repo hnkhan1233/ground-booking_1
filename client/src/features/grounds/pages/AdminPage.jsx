@@ -28,7 +28,6 @@ const SPORT_CATEGORIES = [
 ];
 
 const GROUND_FEATURES = {
-  'Team Format': ['5v5', '7v7', '11v11'],
   'Surface': ['Artificial Turf', 'Natural Grass', 'Concrete', 'Astroturf', 'Wooden'],
   'Venue Type': ['Covered', 'Partially Covered', 'Open'],
   'Amenities': [
@@ -150,7 +149,7 @@ function AdminPage() {
       }
     });
 
-    ['Team Format', 'Surface', 'Venue Type'].forEach((category) => {
+    ['Surface', 'Venue Type'].forEach((category) => {
       if (Array.isArray(features[category]) && features[category].length > 0) {
         features[category] = features[category][0];
       }
@@ -1595,7 +1594,7 @@ function AdminPage() {
                                     onChange={(e) => {
                                       setNewGround((current) => {
                                         const features = { ...current.features };
-                                        if (category === 'Team Format' || category === 'Surface' || category === 'Venue Type') {
+                                        if (category === 'Surface' || category === 'Venue Type') {
                                           // Single choice
                                           features[category] = e.target.checked ? feature : '';
                                         } else {
@@ -1959,7 +1958,7 @@ function AdminPage() {
                                                 prev.map((g) => {
                                                   if (g.id !== ground.id) return g;
                                                   const features = { ...g.features };
-                                                  if (category === 'Team Format' || category === 'Surface' || category === 'Venue Type') {
+                                                  if (category === 'Surface' || category === 'Venue Type') {
                                                     // Single choice
                                                     features[category] = e.target.checked ? feature : '';
                                                   } else {

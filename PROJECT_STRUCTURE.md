@@ -79,7 +79,7 @@ src/
 - **AdminPage**: Complete dashboard for admins to:
   - Add/edit/delete grounds
   - Configure opening hours per day (15m-120m slots)
-  - Manage ground features (Surface, Venue Type, Team Format, etc.)
+  - Manage ground features (Surface, Venue Type, and Amenities)
   - Upload cover photos and gallery images
   - View booking statistics
 - **OperatingHoursConfigurator**: Reusable component for hour configuration with "Apply to All Days" feature

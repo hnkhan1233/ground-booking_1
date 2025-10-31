@@ -95,6 +95,7 @@ function AdminPage() {
   const [busyGroundId, setBusyGroundId] = useState(null);
   const operatingHoursRefs = useRef({});
   const [expandedGroundId, setExpandedGroundId] = useState(null);
+  const [expandedSubsections, setExpandedSubsections] = useState({});
   const [flash, setFlash] = useState(null);
   const [authError, setAuthError] = useState('');
   const [authSuccessMessage, setAuthSuccessMessage] = useState('');
@@ -240,6 +241,14 @@ function AdminPage() {
     setFlash({ type, text });
     setTimeout(() => setFlash(null), 3200);
   }, []);
+
+  const toggleSubsection = (groundId, subsection) => {
+    const key = `${groundId}-${subsection}`;
+    setExpandedSubsections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const authorizedFetch = useCallback(
     async (url, options = {}) => {
@@ -1725,10 +1734,31 @@ function AdminPage() {
                                     </div>
                                   </div>
                                   <div className="admin-form admin-ground__form">
-                            {/* Media Section Header */}
-                            <div style={{ padding: '8px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginBottom: '10px' }}>
-                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📸 Media & Photos</h4>
-                            </div>
+                            {/* Media Section */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSubsection(ground.id, 'media')}
+                              style={{
+                                width: '100%',
+                                padding: '11px 13px',
+                                background: expandedSubsections[`${ground.id}-media`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '10px' : '8px',
+                              }}
+                            >
+                              <span>📸 Media & Photos</span>
+                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-media`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                            </button>
+                            {expandedSubsections[`${ground.id}-media`] && (
                             <div className="admin-ground__media">
                               <div className="admin-media-card admin-media-card--cover">
                                 <div className="admin-media-card__header">
@@ -1850,11 +1880,34 @@ function AdminPage() {
                                 </div>
                               </div>
                             </div>
+                            )}
 
-                            {/* Details Section Header */}
-                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
-                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ℹ️ Ground Details</h4>
-                            </div>
+                            {/* Details Section */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSubsection(ground.id, 'details')}
+                              style={{
+                                width: '100%',
+                                padding: '11px 13px',
+                                background: expandedSubsections[`${ground.id}-details`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '10px' : '8px',
+                                marginTop: '8px',
+                              }}
+                            >
+                              <span>ℹ️ Ground Details</span>
+                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-details`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                            </button>
+                            {expandedSubsections[`${ground.id}-details`] && (
                             <div className="admin-form__row">
                               <label>
                                 Name
@@ -1906,11 +1959,34 @@ function AdminPage() {
                                 }
                               />
                             </label>
+                            )}
 
-                            {/* Sport & Features Section Header */}
-                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
-                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⚽ Sport & Features</h4>
-                            </div>
+                            {/* Sport & Features Section */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSubsection(ground.id, 'features')}
+                              style={{
+                                width: '100%',
+                                padding: '11px 13px',
+                                background: expandedSubsections[`${ground.id}-features`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '10px' : '8px',
+                                marginTop: '8px',
+                              }}
+                            >
+                              <span>⚽ Sport & Features</span>
+                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                            </button>
+                            {expandedSubsections[`${ground.id}-features`] && (
                             <div className="admin-form__row">
                               <label>
                                 Sport Category
@@ -1999,11 +2075,34 @@ function AdminPage() {
                                 </div>
                               ))}
                             </div>
+                            )}
 
-                            {/* Hours & Description Section Header */}
-                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
-                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🕒 Operating Hours & More</h4>
-                            </div>
+                            {/* Operating Hours Section */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSubsection(ground.id, 'hours')}
+                              style={{
+                                width: '100%',
+                                padding: '11px 13px',
+                                background: expandedSubsections[`${ground.id}-hours`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '10px' : '8px',
+                                marginTop: '8px',
+                              }}
+                            >
+                              <span>🕒 Operating Hours</span>
+                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-hours`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                            </button>
+                            {expandedSubsections[`${ground.id}-hours`] && (
                             <div style={{ marginTop: '0', paddingTop: '0' }}>
                               <OperatingHoursConfigurator
                                 ref={(ref) => {
@@ -2013,7 +2112,34 @@ function AdminPage() {
                                 getIdToken={getIdToken}
                               />
                             </div>
+                            )}
 
+                            {/* Description Section */}
+                            <button
+                              type="button"
+                              onClick={() => toggleSubsection(ground.id, 'description')}
+                              style={{
+                                width: '100%',
+                                padding: '11px 13px',
+                                background: expandedSubsections[`${ground.id}-description`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '8px',
+                                color: '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '10px' : '8px',
+                                marginTop: '8px',
+                              }}
+                            >
+                              <span>📝 Description</span>
+                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-description`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                            </button>
+                            {expandedSubsections[`${ground.id}-description`] && (
                             <label>
                               Description
                               <textarea
@@ -2024,6 +2150,7 @@ function AdminPage() {
                                 }
                               />
                             </label>
+                            )}
                                   </div>
                                 </div>
                               </div>

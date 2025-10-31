@@ -1702,38 +1702,29 @@ function AdminPage() {
                             {/* Expanded Content */}
                             {isExpanded && (
                               <div style={{
-                                padding: '12px',
-                                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.6))',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                position: 'relative',
+                                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.65))',
+                                border: '1px solid rgba(59, 130, 246, 0.35)',
                                 borderTop: 'none',
                                 borderRadius: '0 0 12px 12px',
                                 color: '#f8fafc',
-                                maxHeight: '70vh',
-                                overflowY: 'auto',
                               }}>
-                                <div className="admin-ground" style={{ background: 'transparent', borderRadius: 0, border: 'none' }}>
-                                  <div className="admin-ground__header" style={{ marginBottom: '16px' }}>
-                                    <div></div>
-                                    <div className="admin-ground__actions">
-                                      <button
-                                        type="button"
-                                        className="ghost-button"
-                                        onClick={() => handleSave(ground.id)}
-                                        disabled={busyGroundId === ground.id}
-                                      >
-                                        {busyGroundId === ground.id ? 'Saving…' : 'Save'}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="danger-button"
-                                        onClick={() => handleDelete(ground.id)}
-                                        disabled={busyGroundId === ground.id}
-                                      >
-                                        Delete
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div className="admin-form admin-ground__form">
+                                {/* Divider between header and content */}
+                                <div style={{
+                                  height: '1px',
+                                  background: 'linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent)',
+                                  marginBottom: '8px',
+                                }}></div>
+
+                                {/* Scrollable Form Content */}
+                                <div style={{
+                                  padding: '24px',
+                                  maxHeight: '75vh',
+                                  overflowY: 'auto',
+                                  paddingBottom: '100px', // Space for sticky footer
+                                }}>
+                                  <div className="admin-ground" style={{ background: 'transparent', borderRadius: 0, border: 'none' }}>
+                                    <div className="admin-form admin-ground__form">
                             {/* Media Section */}
                             <button
                               type="button"
@@ -1756,7 +1747,7 @@ function AdminPage() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 transition: 'all 0.25s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '18px' : '12px',
+                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '20px' : '16px',
                                 boxShadow: expandedSubsections[`${ground.id}-media`]
                                   ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
                                   : '0 12px 30px rgba(2, 6, 23, 0.28)',
@@ -1936,8 +1927,8 @@ function AdminPage() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 transition: 'all 0.25s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '18px' : '12px',
-                                marginTop: '10px',
+                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '20px' : '16px',
+                                marginTop: '16px',
                                 boxShadow: expandedSubsections[`${ground.id}-details`]
                                   ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
                                   : '0 12px 30px rgba(2, 6, 23, 0.28)',
@@ -2047,8 +2038,8 @@ function AdminPage() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 transition: 'all 0.25s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '18px' : '12px',
-                                marginTop: '10px',
+                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '20px' : '16px',
+                                marginTop: '16px',
                                 boxShadow: expandedSubsections[`${ground.id}-features`]
                                   ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
                                   : '0 12px 30px rgba(2, 6, 23, 0.28)',
@@ -2197,8 +2188,8 @@ function AdminPage() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 transition: 'all 0.25s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '18px' : '12px',
-                                marginTop: '10px',
+                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '20px' : '16px',
+                                marginTop: '16px',
                                 boxShadow: expandedSubsections[`${ground.id}-hours`]
                                   ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
                                   : '0 12px 30px rgba(2, 6, 23, 0.28)',
@@ -2266,8 +2257,8 @@ function AdminPage() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 transition: 'all 0.25s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '18px' : '12px',
-                                marginTop: '10px',
+                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '20px' : '16px',
+                                marginTop: '16px',
                                 boxShadow: expandedSubsections[`${ground.id}-description`]
                                   ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
                                   : '0 12px 30px rgba(2, 6, 23, 0.28)',
@@ -2313,6 +2304,124 @@ function AdminPage() {
                               />
                             </label>
                             )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Sticky Footer with Action Buttons */}
+                                <div style={{
+                                  position: 'sticky',
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  padding: '20px 24px',
+                                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+                                  backdropFilter: 'blur(12px)',
+                                  borderTop: '1px solid rgba(96, 165, 250, 0.3)',
+                                  borderRadius: '0 0 12px 12px',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  gap: '16px',
+                                  boxShadow: '0 -8px 24px rgba(0, 0, 0, 0.3)',
+                                }}>
+                                  {/* Left side - Status/Info */}
+                                  <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    fontSize: '14px',
+                                    color: 'rgba(226, 232, 240, 0.8)',
+                                  }}>
+                                    <span style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      padding: '6px 12px',
+                                      background: 'rgba(59, 130, 246, 0.15)',
+                                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                                      borderRadius: '6px',
+                                      fontSize: '13px',
+                                      fontWeight: '500',
+                                    }}>
+                                      <span style={{ fontSize: '16px' }}>📝</span>
+                                      Ground #{ground.id}
+                                    </span>
+                                  </div>
+
+                                  {/* Right side - Action Buttons */}
+                                  <div style={{
+                                    display: 'flex',
+                                    gap: '12px',
+                                  }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDelete(ground.id)}
+                                      disabled={busyGroundId === ground.id}
+                                      style={{
+                                        padding: '10px 20px',
+                                        background: 'rgba(239, 68, 68, 0.15)',
+                                        border: '1.5px solid rgba(239, 68, 68, 0.5)',
+                                        borderRadius: '8px',
+                                        color: '#fca5a5',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: busyGroundId === ground.id ? 'not-allowed' : 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        opacity: busyGroundId === ground.id ? 0.5 : 1,
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        if (busyGroundId !== ground.id) {
+                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.7)';
+                                          e.currentTarget.style.color = '#fecaca';
+                                        }
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        if (busyGroundId !== ground.id) {
+                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                                          e.currentTarget.style.color = '#fca5a5';
+                                        }
+                                      }}
+                                    >
+                                      🗑️ Delete Ground
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSave(ground.id)}
+                                      disabled={busyGroundId === ground.id}
+                                      style={{
+                                        padding: '10px 28px',
+                                        background: busyGroundId === ground.id
+                                          ? 'rgba(59, 130, 246, 0.3)'
+                                          : 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.9))',
+                                        border: '1.5px solid rgba(96, 165, 250, 0.6)',
+                                        borderRadius: '8px',
+                                        color: '#ffffff',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: busyGroundId === ground.id ? 'not-allowed' : 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: busyGroundId === ground.id
+                                          ? 'none'
+                                          : '0 4px 12px rgba(59, 130, 246, 0.3)',
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        if (busyGroundId !== ground.id) {
+                                          e.currentTarget.style.transform = 'translateY(-1px)';
+                                          e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                                        }
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        if (busyGroundId !== ground.id) {
+                                          e.currentTarget.style.transform = 'translateY(0)';
+                                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                                        }
+                                      }}
+                                    >
+                                      {busyGroundId === ground.id ? '💾 Saving…' : '💾 Save Changes'}
+                                    </button>
                                   </div>
                                 </div>
                               </div>

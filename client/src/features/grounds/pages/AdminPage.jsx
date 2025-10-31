@@ -1740,53 +1740,54 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'media')}
                               style={{
                                 width: '100%',
-                                padding: '16px 20px',
+                                padding: '18px 24px',
                                 background: expandedSubsections[`${ground.id}-media`]
-                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
-                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
                                 border: expandedSubsections[`${ground.id}-media`]
-                                  ? '2px solid rgba(59, 130, 246, 0.6)'
-                                  : '1px solid rgba(71, 85, 105, 0.5)',
-                                borderRadius: '12px',
-                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : '#cbd5e1',
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#f8fafc' : '#e2e8f0',
                                 fontWeight: '600',
-                                fontSize: '14px',
+                                fontSize: '15px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '16px' : '10px',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '18px' : '12px',
                                 boxShadow: expandedSubsections[`${ground.id}-media`]
-                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
                                 position: 'relative',
                                 overflow: 'hidden',
                               }}
                               onMouseEnter={(e) => {
                                 if (!expandedSubsections[`${ground.id}-media`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
-                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!expandedSubsections[`${ground.id}-media`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
-                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
-                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
                                 }
                               }}
                             >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
-                                <span style={{ fontSize: '20px' }}>📸</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>📸</span>
                                 <span>Media & Photos</span>
                               </span>
                               <span style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 transform: expandedSubsections[`${ground.id}-media`] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : '#94a3b8'
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
                               }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-media`] && (
@@ -1919,54 +1920,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'details')}
                               style={{
                                 width: '100%',
-                                padding: '16px 20px',
+                                padding: '18px 24px',
                                 background: expandedSubsections[`${ground.id}-details`]
-                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
-                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
                                 border: expandedSubsections[`${ground.id}-details`]
-                                  ? '2px solid rgba(59, 130, 246, 0.6)'
-                                  : '1px solid rgba(71, 85, 105, 0.5)',
-                                borderRadius: '12px',
-                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#cbd5e1',
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#f8fafc' : '#e2e8f0',
                                 fontWeight: '600',
-                                fontSize: '14px',
+                                fontSize: '15px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '16px' : '10px',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '18px' : '12px',
                                 marginTop: '10px',
                                 boxShadow: expandedSubsections[`${ground.id}-details`]
-                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
                                 position: 'relative',
                                 overflow: 'hidden',
                               }}
                               onMouseEnter={(e) => {
                                 if (!expandedSubsections[`${ground.id}-details`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
-                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!expandedSubsections[`${ground.id}-details`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
-                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
-                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
                                 }
                               }}
                             >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
-                                <span style={{ fontSize: '20px' }}>ℹ️</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>ℹ️</span>
                                 <span>Ground Details</span>
                               </span>
                               <span style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 transform: expandedSubsections[`${ground.id}-details`] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#94a3b8'
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
                               }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-details`] && (
@@ -2029,54 +2031,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'features')}
                               style={{
                                 width: '100%',
-                                padding: '16px 20px',
+                                padding: '18px 24px',
                                 background: expandedSubsections[`${ground.id}-features`]
-                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
-                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
                                 border: expandedSubsections[`${ground.id}-features`]
-                                  ? '2px solid rgba(59, 130, 246, 0.6)'
-                                  : '1px solid rgba(71, 85, 105, 0.5)',
-                                borderRadius: '12px',
-                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#cbd5e1',
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#f8fafc' : '#e2e8f0',
                                 fontWeight: '600',
-                                fontSize: '14px',
+                                fontSize: '15px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '16px' : '10px',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '18px' : '12px',
                                 marginTop: '10px',
                                 boxShadow: expandedSubsections[`${ground.id}-features`]
-                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
                                 position: 'relative',
                                 overflow: 'hidden',
                               }}
                               onMouseEnter={(e) => {
                                 if (!expandedSubsections[`${ground.id}-features`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
-                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!expandedSubsections[`${ground.id}-features`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
-                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
-                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
                                 }
                               }}
                             >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
-                                <span style={{ fontSize: '20px' }}>⚽</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>⚽</span>
                                 <span>Sport & Features</span>
                               </span>
                               <span style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#94a3b8'
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
                               }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-features`] && (
@@ -2178,54 +2181,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'hours')}
                               style={{
                                 width: '100%',
-                                padding: '16px 20px',
+                                padding: '18px 24px',
                                 background: expandedSubsections[`${ground.id}-hours`]
-                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
-                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
                                 border: expandedSubsections[`${ground.id}-hours`]
-                                  ? '2px solid rgba(59, 130, 246, 0.6)'
-                                  : '1px solid rgba(71, 85, 105, 0.5)',
-                                borderRadius: '12px',
-                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#cbd5e1',
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#f8fafc' : '#e2e8f0',
                                 fontWeight: '600',
-                                fontSize: '14px',
+                                fontSize: '15px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '16px' : '10px',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '18px' : '12px',
                                 marginTop: '10px',
                                 boxShadow: expandedSubsections[`${ground.id}-hours`]
-                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
                                 position: 'relative',
                                 overflow: 'hidden',
                               }}
                               onMouseEnter={(e) => {
                                 if (!expandedSubsections[`${ground.id}-hours`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
-                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!expandedSubsections[`${ground.id}-hours`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
-                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
-                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
                                 }
                               }}
                             >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
-                                <span style={{ fontSize: '20px' }}>🕒</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>🕒</span>
                                 <span>Operating Hours</span>
                               </span>
                               <span style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 transform: expandedSubsections[`${ground.id}-hours`] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#94a3b8'
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
                               }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-hours`] && (
@@ -2246,54 +2250,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'description')}
                               style={{
                                 width: '100%',
-                                padding: '16px 20px',
+                                padding: '18px 24px',
                                 background: expandedSubsections[`${ground.id}-description`]
-                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
-                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
                                 border: expandedSubsections[`${ground.id}-description`]
-                                  ? '2px solid rgba(59, 130, 246, 0.6)'
-                                  : '1px solid rgba(71, 85, 105, 0.5)',
-                                borderRadius: '12px',
-                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#cbd5e1',
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#f8fafc' : '#e2e8f0',
                                 fontWeight: '600',
-                                fontSize: '14px',
+                                fontSize: '15px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '16px' : '10px',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '18px' : '12px',
                                 marginTop: '10px',
                                 boxShadow: expandedSubsections[`${ground.id}-description`]
-                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
                                 position: 'relative',
                                 overflow: 'hidden',
                               }}
                               onMouseEnter={(e) => {
                                 if (!expandedSubsections[`${ground.id}-description`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
-                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!expandedSubsections[`${ground.id}-description`]) {
-                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
-                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
-                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
                                 }
                               }}
                             >
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
-                                <span style={{ fontSize: '20px' }}>📝</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>📝</span>
                                 <span>Description</span>
                               </span>
                               <span style={{
-                                fontSize: '12px',
+                                fontSize: '13px',
                                 transform: expandedSubsections[`${ground.id}-description`] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#94a3b8'
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
                               }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-description`] && (

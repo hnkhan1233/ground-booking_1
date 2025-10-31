@@ -1693,12 +1693,14 @@ function AdminPage() {
                             {/* Expanded Content */}
                             {isExpanded && (
                               <div style={{
-                                padding: '16px',
+                                padding: '12px',
                                 background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.6))',
                                 border: '1px solid rgba(59, 130, 246, 0.3)',
                                 borderTop: 'none',
                                 borderRadius: '0 0 12px 12px',
                                 color: '#f8fafc',
+                                maxHeight: '70vh',
+                                overflowY: 'auto',
                               }}>
                                 <div className="admin-ground" style={{ background: 'transparent', borderRadius: 0, border: 'none' }}>
                                   <div className="admin-ground__header" style={{ marginBottom: '16px' }}>
@@ -1723,6 +1725,10 @@ function AdminPage() {
                                     </div>
                                   </div>
                                   <div className="admin-form admin-ground__form">
+                            {/* Media Section Header */}
+                            <div style={{ padding: '8px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginBottom: '10px' }}>
+                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📸 Media & Photos</h4>
+                            </div>
                             <div className="admin-ground__media">
                               <div className="admin-media-card admin-media-card--cover">
                                 <div className="admin-media-card__header">
@@ -1844,6 +1850,11 @@ function AdminPage() {
                                 </div>
                               </div>
                             </div>
+
+                            {/* Details Section Header */}
+                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
+                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ℹ️ Ground Details</h4>
+                            </div>
                             <div className="admin-form__row">
                               <label>
                                 Name
@@ -1896,6 +1907,10 @@ function AdminPage() {
                               />
                             </label>
 
+                            {/* Sport & Features Section Header */}
+                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
+                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⚽ Sport & Features</h4>
+                            </div>
                             <div className="admin-form__row">
                               <label>
                                 Sport Category
@@ -1985,7 +2000,11 @@ function AdminPage() {
                               ))}
                             </div>
 
-                            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(148, 163, 184, 0.3)' }}>
+                            {/* Hours & Description Section Header */}
+                            <div style={{ padding: '14px 0 10px 0', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', marginTop: '12px', marginBottom: '10px' }}>
+                              <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🕒 Operating Hours & More</h4>
+                            </div>
+                            <div style={{ marginTop: '0', paddingTop: '0' }}>
                               <OperatingHoursConfigurator
                                 ref={(ref) => {
                                   operatingHoursRefs.current[ground.id] = ref;

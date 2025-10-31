@@ -1945,20 +1945,20 @@ function AdminPage() {
                                   }
                                 />
                               </label>
+                              <label>
+                                Price / hour (PKR)
+                                <input
+                                  required
+                                  type="number"
+                                  min="0"
+                                  step="100"
+                                  value={ground.pricePerHour}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'pricePerHour', event.target.value)
+                                  }
+                                />
+                              </label>
                             </div>
-                            <label>
-                              Price / hour (PKR)
-                              <input
-                                required
-                                type="number"
-                                min="0"
-                                step="100"
-                                value={ground.pricePerHour}
-                                onChange={(event) =>
-                                  handleFieldChange(ground.id, 'pricePerHour', event.target.value)
-                                }
-                              />
-                            </label>
                             )}
 
                             {/* Sport & Features Section */}
@@ -1987,6 +1987,7 @@ function AdminPage() {
                               <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-features`] && (
+                            <>
                             <div className="admin-form__row">
                               <label>
                                 Sport Category
@@ -2075,6 +2076,7 @@ function AdminPage() {
                                 </div>
                               ))}
                             </div>
+                            </>
                             )}
 
                             {/* Operating Hours Section */}

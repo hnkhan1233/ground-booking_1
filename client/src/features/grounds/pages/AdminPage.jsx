@@ -1740,23 +1740,54 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'media')}
                               style={{
                                 width: '100%',
-                                padding: '11px 13px',
-                                background: expandedSubsections[`${ground.id}-media`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-media`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-media`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : '#cbd5e1',
                                 fontWeight: '600',
-                                fontSize: '13px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '10px' : '8px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '16px' : '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-media`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-media`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-media`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
                               }}
                             >
-                              <span>📸 Media & Photos</span>
-                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-media`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>📸</span>
+                                <span>Media & Photos</span>
+                              </span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-media`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-media`] && (
                             <div className="admin-ground__media">
@@ -1888,24 +1919,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'details')}
                               style={{
                                 width: '100%',
-                                padding: '11px 13px',
-                                background: expandedSubsections[`${ground.id}-details`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-details`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-details`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#cbd5e1',
                                 fontWeight: '600',
-                                fontSize: '13px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '10px' : '8px',
-                                marginTop: '8px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-details`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-details`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-details`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
                               }}
                             >
-                              <span>ℹ️ Ground Details</span>
-                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-details`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>ℹ️</span>
+                                <span>Ground Details</span>
+                              </span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-details`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-details`] && (
                             <div className="admin-form__row">
@@ -1967,24 +2029,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'features')}
                               style={{
                                 width: '100%',
-                                padding: '11px 13px',
-                                background: expandedSubsections[`${ground.id}-features`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-features`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-features`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#cbd5e1',
                                 fontWeight: '600',
-                                fontSize: '13px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '10px' : '8px',
-                                marginTop: '8px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-features`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-features`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-features`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
                               }}
                             >
-                              <span>⚽ Sport & Features</span>
-                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>⚽</span>
+                                <span>Sport & Features</span>
+                              </span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-features`] && (
                             <>
@@ -2085,24 +2178,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'hours')}
                               style={{
                                 width: '100%',
-                                padding: '11px 13px',
-                                background: expandedSubsections[`${ground.id}-hours`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-hours`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-hours`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#cbd5e1',
                                 fontWeight: '600',
-                                fontSize: '13px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '10px' : '8px',
-                                marginTop: '8px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-hours`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-hours`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-hours`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
                               }}
                             >
-                              <span>🕒 Operating Hours</span>
-                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-hours`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>🕒</span>
+                                <span>Operating Hours</span>
+                              </span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-hours`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-hours`] && (
                             <div style={{ marginTop: '0', paddingTop: '0' }}>
@@ -2122,24 +2246,55 @@ function AdminPage() {
                               onClick={() => toggleSubsection(ground.id, 'description')}
                               style={{
                                 width: '100%',
-                                padding: '11px 13px',
-                                background: expandedSubsections[`${ground.id}-description`] ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.07)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
-                                color: '#e2e8f0',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-description`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-description`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#cbd5e1',
                                 fontWeight: '600',
-                                fontSize: '13px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '10px' : '8px',
-                                marginTop: '8px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-description`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-description`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-description`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
                               }}
                             >
-                              <span>📝 Description</span>
-                              <span style={{ fontSize: '11px', transform: expandedSubsections[`${ground.id}-description`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>📝</span>
+                                <span>Description</span>
+                              </span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-description`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
                             {expandedSubsections[`${ground.id}-description`] && (
                             <label>

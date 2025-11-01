@@ -101,9 +101,11 @@ router.get('/:groundId/availability', (req, res) => {
     return res.status(404).json({ error: 'Ground not found.' });
   }
 
-  // Get the day of week for the requested date (0 = Sunday, 6 = Saturday)
+  // Get the day of week for the requested date
+  // Convert JavaScript's getDay() (0=Sunday, 6=Saturday) to database format (0=Monday, 6=Sunday)
   const requestedDate = new Date(date + 'T00:00:00');
-  const dayOfWeek = requestedDate.getDay();
+  const jsDayOfWeek = requestedDate.getDay();
+  const dayOfWeek = (jsDayOfWeek + 6) % 7; // Convert: JS Sunday(0) -> DB Monday(0)
 
   // Check if the ground is closed on this day of the week
   const operatingHours = db

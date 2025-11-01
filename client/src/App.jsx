@@ -6,7 +6,7 @@ import GroundDetailPage from './features/grounds/pages/GroundDetailPage.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<BookingPage />} />
         <Route path="/ground/:id" element={<GroundDetailPage />} />

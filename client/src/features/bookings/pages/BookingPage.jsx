@@ -582,7 +582,7 @@ function BookingPage() {
       setPendingBooking(false);
       setAvailability((current) =>
         current.map((slot) =>
-          slot.slot === booking.slot ? { ...slot, isAvailable: false } : slot
+          slot.slot === booking.slot ? { ...slot, available: false } : slot
         )
       );
     } catch (error) {

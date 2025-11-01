@@ -1024,8 +1024,8 @@ function AdminPage() {
   }
 
   return (
-    <div className="admin">
-      <header className="admin__hero">
+    <div className="admin admin--sporty">
+      <header className="admin__hero admin__hero--sporty">
         <div className="admin__hero-content">
           <p className="hero__eyebrow">Control Room</p>
           <h1>Ground inventory dashboard</h1>
@@ -1043,7 +1043,7 @@ function AdminPage() {
         ) : null}
       </header>
 
-      <main className="admin__body">
+      <main className="admin__body admin__body--sporty">
         {flash && (
           <div className={`flash-message flash-message--${flash.type}`} role="status">
             {flash.text}
@@ -1051,7 +1051,7 @@ function AdminPage() {
         )}
 
         {!user ? (
-          <section className="admin-card admin-login">
+          <section className="admin-card admin-card--sporty admin-login">
             <h2>Admin sign in</h2>
             <p className="admin-login__intro">
               Sign in with an approved email address or phone number to manage the grounds catalogue.
@@ -1217,12 +1217,12 @@ function AdminPage() {
             </p>
           </section>
         ) : checkingAdmin ? (
-          <section className="admin-card">
+          <section className="admin-card admin-card--sporty">
             <h2>Checking access…</h2>
             <p className="status status--muted">Verifying your admin permissions.</p>
           </section>
         ) : !isAdmin ? (
-          <section className="admin-card admin-login">
+          <section className="admin-card admin-card--sporty admin-login">
             <h2>Admin access required</h2>
             <p className="auth-hint">
               This account is signed in but is not on the approved admin list.
@@ -1255,7 +1255,7 @@ function AdminPage() {
             </div>
 
             {activeTab === 'stats' && (
-              <section className="admin-card admin-stats">
+              <section className="admin-card admin-card--sporty admin-stats admin-stats--sporty">
                 <div className="admin-card__header">
                   <h2>Dashboard overview</h2>
                   {statsLoading ? (
@@ -1467,9 +1467,9 @@ function AdminPage() {
 
             {activeTab === 'venues' && (
               <>
-                <section className="admin-card">
+                <section className="admin-card admin-card--sporty">
                   <h2>Create a new ground</h2>
-                  <form className="admin-form" onSubmit={handleCreate}>
+                  <form className="admin-form admin-form--sporty" onSubmit={handleCreate}>
                     <div className="admin-form__row">
                       <label>
                         Name
@@ -1646,7 +1646,7 @@ function AdminPage() {
                   </form>
                 </section>
 
-                <section className="admin-card">
+                <section className="admin-card admin-card--sporty">
                   <div className="admin-card__header">
                     <h2>Existing grounds</h2>
                     {isLoading ? <span className="status">Refreshing…</span> : null}
@@ -1675,7 +1675,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => setExpandedGroundId(isExpanded ? null : ground.id)}
-                              className={`admin-ground-toggle${isExpanded ? ' admin-ground-toggle--open' : ''}`}
+                              className={`admin-ground-toggle admin-ground-toggle--sporty${isExpanded ? ' admin-ground-toggle--open' : ''}`}
                             >
                               <div className="admin-ground-toggle__content">
                                 <h3 className="admin-ground-toggle__title">
@@ -1692,7 +1692,7 @@ function AdminPage() {
 
                             {/* Expanded Content */}
                             {isExpanded && (
-                              <div className="admin-ground-panel">
+                              <div className="admin-ground-panel admin-ground-panel--sporty">
                                 <div className="admin-ground-panel__divider" />
                                 <div
                                   className="admin-ground-panel__body"
@@ -1705,13 +1705,13 @@ function AdminPage() {
                                     className="admin-ground"
                                     style={{ background: 'transparent', borderRadius: 0, border: 'none' }}
                                   >
-                                    <div className="admin-form admin-ground__form">
-                                      <div className="admin-accordion">
+                                    <div className="admin-form admin-form--sporty admin-ground__form admin-ground__form--sporty">
+                                      <div className="admin-accordion admin-accordion--sporty">
                             {/* Media Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'media')}
-                              className={`admin-accordion__trigger${
+                              className={`admin-accordion__trigger admin-accordion__trigger--sporty${
                                 expandedMedia ? ' admin-accordion__trigger--open' : ''
                               }`}
                             >
@@ -1851,7 +1851,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'details')}
-                              className={`admin-accordion__trigger${
+                              className={`admin-accordion__trigger admin-accordion__trigger--sporty${
                                 expandedDetails ? ' admin-accordion__trigger--open' : ''
                               }`}
                             >
@@ -1921,7 +1921,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'features')}
-                              className={`admin-accordion__trigger${
+                              className={`admin-accordion__trigger admin-accordion__trigger--sporty${
                                 expandedFeatures ? ' admin-accordion__trigger--open' : ''
                               }`}
                             >
@@ -2007,7 +2007,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'hours')}
-                              className={`admin-accordion__trigger${
+                              className={`admin-accordion__trigger admin-accordion__trigger--sporty${
                                 expandedHours ? ' admin-accordion__trigger--open' : ''
                               }`}
                             >
@@ -2033,7 +2033,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'description')}
-                              className={`admin-accordion__trigger${
+                              className={`admin-accordion__trigger admin-accordion__trigger--sporty${
                                 expandedDescription ? ' admin-accordion__trigger--open' : ''
                               }`}
                             >

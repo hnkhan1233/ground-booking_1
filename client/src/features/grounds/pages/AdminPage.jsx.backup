@@ -1570,7 +1570,7 @@ function AdminPage() {
                       background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.5))',
                       backdropFilter: 'blur(10px)'
                     }}>
-                      <h3 style={{ marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Features</h3>
+                      <h3 style={{ marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Features</h3>
                       {Object.entries(GROUND_FEATURES).map(([category, options]) => (
                         <div key={category} style={{ marginBottom: '8px' }}>
                           <h4 style={{ fontSize: '11px', marginBottom: '4px', color: 'rgba(226, 232, 240, 0.6)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
@@ -1593,7 +1593,7 @@ function AdminPage() {
                                     cursor: 'pointer',
                                     background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.4)',
                                     fontSize: '11px',
-                                    color: isSelected ? '#a855f7' : 'rgba(226, 232, 240, 0.7)',
+                                    color: isSelected ? '#60a5fa' : 'rgba(226, 232, 240, 0.7)',
                                     transition: 'all 0.2s ease',
                                   }}
                                 >
@@ -1660,75 +1660,143 @@ function AdminPage() {
                     <div className="admin-ground-list">
                       {grounds.map((ground) => {
                         const isExpanded = expandedGroundId === ground.id;
-                        const subsectionKeys = ['media', 'details', 'features', 'hours', 'description'];
-                        const isAnySubsectionOpen = subsectionKeys.some(
-                          (key) => expandedSubsections[`${ground.id}-${key}`]
-                        );
-                        const expandedMedia = expandedSubsections[`${ground.id}-media`];
-                        const expandedDetails = expandedSubsections[`${ground.id}-details`];
-                        const expandedFeatures = expandedSubsections[`${ground.id}-features`];
-                        const expandedHours = expandedSubsections[`${ground.id}-hours`];
-                        const expandedDescription = expandedSubsections[`${ground.id}-description`];
                         return (
                           <div key={ground.id} style={{ marginBottom: '8px' }}>
                             {/* Dropdown Header */}
                             <button
                               type="button"
                               onClick={() => setExpandedGroundId(isExpanded ? null : ground.id)}
-                              className={`admin-ground-toggle${isExpanded ? ' admin-ground-toggle--open' : ''}`}
+                              style={{
+                                width: '100%',
+                                padding: '14px 16px',
+                                background: isExpanded ? 'radial-gradient(circle at 20% 20%, #1e3a8a, #0f1729 65%)' : 'radial-gradient(circle at 20% 20%, #11193a, #05060f 65%)',
+                                border: `1px solid ${isExpanded ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.3)'}`,
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                color: '#f8fafc',
+                              }}
                             >
-                              <div className="admin-ground-toggle__content">
-                                <h3 className="admin-ground-toggle__title">
+                              <div style={{ textAlign: 'left', flex: 1 }}>
+                                <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#f8fafc' }}>
                                   {ground.name || `Ground #${ground.id}`}
                                 </h3>
-                                <p className="admin-ground-toggle__meta">
+                                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(226, 232, 240, 0.7)' }}>
                                   {ground.location}, {ground.city} • ₨{ground.pricePerHour}/hr
                                 </p>
                               </div>
-                              <span className="admin-ground-toggle__chevron" aria-hidden="true">
+                              <span style={{
+                                fontSize: '18px',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s ease',
+                                marginLeft: '16px',
+                                color: 'rgba(226, 232, 240, 0.8)',
+                              }}>
                                 ▼
                               </span>
                             </button>
 
                             {/* Expanded Content */}
                             {isExpanded && (
-                              <div className="admin-ground-panel">
-                                <div className="admin-ground-panel__divider" />
-                                <div
-                                  className="admin-ground-panel__body"
-                                  style={{
-                                    maxHeight: isAnySubsectionOpen ? '72vh' : 'none',
-                                    overflowY: isAnySubsectionOpen ? 'auto' : 'visible',
-                                  }}
-                                >
-                                  <div
-                                    className="admin-ground"
-                                    style={{ background: 'transparent', borderRadius: 0, border: 'none' }}
-                                  >
-                                    <div className="admin-form admin-ground__form">
-                                      <div className="admin-accordion">
+                              <div style={{
+                                padding: '12px',
+                                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.6))',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderTop: 'none',
+                                borderRadius: '0 0 12px 12px',
+                                color: '#f8fafc',
+                                maxHeight: '70vh',
+                                overflowY: 'auto',
+                              }}>
+                                <div className="admin-ground" style={{ background: 'transparent', borderRadius: 0, border: 'none' }}>
+                                  <div className="admin-ground__header" style={{ marginBottom: '16px' }}>
+                                    <div></div>
+                                    <div className="admin-ground__actions">
+                                      <button
+                                        type="button"
+                                        className="ghost-button"
+                                        onClick={() => handleSave(ground.id)}
+                                        disabled={busyGroundId === ground.id}
+                                      >
+                                        {busyGroundId === ground.id ? 'Saving…' : 'Save'}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="danger-button"
+                                        onClick={() => handleDelete(ground.id)}
+                                        disabled={busyGroundId === ground.id}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="admin-form admin-ground__form">
                             {/* Media Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'media')}
-                              className={`admin-accordion__trigger${
-                                expandedMedia ? ' admin-accordion__trigger--open' : ''
-                              }`}
+                              style={{
+                                width: '100%',
+                                padding: '18px 24px',
+                                background: expandedSubsections[`${ground.id}-media`]
+                                  ? 'rgba(15, 23, 42, 0.72)'
+                                  : 'rgba(15, 23, 42, 0.62)',
+                                border: expandedSubsections[`${ground.id}-media`]
+                                  ? '1.6px solid rgba(96, 165, 250, 0.7)'
+                                  : '1px solid rgba(148, 163, 184, 0.28)',
+                                borderRadius: '1.15rem',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#f8fafc' : '#e2e8f0',
+                                fontWeight: '600',
+                                fontSize: '15px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.25s ease',
+                                marginBottom: expandedSubsections[`${ground.id}-media`] ? '18px' : '12px',
+                                boxShadow: expandedSubsections[`${ground.id}-media`]
+                                  ? '0 18px 46px rgba(37, 99, 235, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)'
+                                  : '0 12px 30px rgba(2, 6, 23, 0.28)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-media`]) {
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.35)';
+                                  e.currentTarget.style.boxShadow = '0 22px 45px rgba(2, 6, 23, 0.32), 0 0 30px rgba(96, 165, 250, 0.2)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-media`]) {
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.28)';
+                                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.28)';
+                                }
+                              }}
                             >
-                              <span className="admin-accordion__label">
-                                <span className="admin-accordion__icon" aria-hidden="true">📸</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '15px' }}>
+                                <span style={{ fontSize: '22px', filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>📸</span>
                                 <span>Media & Photos</span>
                               </span>
-                              <span className="admin-accordion__chevron" aria-hidden="true">▾</span>
+                              <span style={{
+                                fontSize: '13px',
+                                transform: expandedSubsections[`${ground.id}-media`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.25s ease',
+                                color: expandedSubsections[`${ground.id}-media`] ? '#60a5fa' : 'rgba(148, 163, 184, 0.92)',
+                                fontWeight: '500'
+                              }}>▼</span>
                             </button>
-                            {expandedMedia && (
-                              <div className="admin-accordion__panel">
-                                <div className="admin-ground__media">
-                                  <div className="admin-media-card admin-media-card--cover">
-                                    <div className="admin-media-card__header">
-                                      <span>Cover photo</span>
-                                      {groundImageDrafts[ground.id] ? (
-                                        <span className="admin-media-card__status">Pending save</span>
+                            {expandedSubsections[`${ground.id}-media`] && (
+                            <div className="admin-ground__media">
+                              <div className="admin-media-card admin-media-card--cover">
+                                <div className="admin-media-card__header">
+                                  <span>Cover photo</span>
+                                  {groundImageDrafts[ground.id] ? (
+                                    <span className="admin-media-card__status">Pending save</span>
                                   ) : null}
                                 </div>
                                 <div className="admin-media-card__body">
@@ -1844,338 +1912,403 @@ function AdminPage() {
                                 </div>
                               </div>
                             </div>
-                          </div>
                             )}
 
                             {/* Details Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'details')}
-                              className={`admin-accordion__trigger${
-                                expandedDetails ? ' admin-accordion__trigger--open' : ''
-                              }`}
+                              style={{
+                                width: '100%',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-details`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-details`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#cbd5e1',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-details`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-details`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-details`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-details`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
+                              }}
                             >
-                              <span className="admin-accordion__label">
-                                <span className="admin-accordion__icon" aria-hidden="true">ℹ️</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>ℹ️</span>
                                 <span>Ground Details</span>
                               </span>
-                              <span className="admin-accordion__chevron" aria-hidden="true">▾</span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-details`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-details`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
-                            {expandedDetails && (
-                              <div className="admin-accordion__panel">
-                                <div className="admin-form__row">
-                                  <label>
-                                    Name
-                                    <input
-                                      required
-                                      value={ground.name}
-                                      onChange={(event) =>
-                                        handleFieldChange(ground.id, 'name', event.target.value)
-                                      }
-                                    />
-                                  </label>
-                                  <label>
-                                    City
-                                    <select
-                                      value={ground.city}
-                                      onChange={(event) =>
-                                        handleFieldChange(ground.id, 'city', event.target.value)
-                                      }
-                                    >
-                                      <option value="">Select city</option>
-                                      {cityOptions.map((city) => (
-                                        <option key={city} value={city}>
-                                          {city}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </label>
-                                  <label>
-                                    Location
-                                    <input
-                                      required
-                                      value={ground.location}
-                                      onChange={(event) =>
-                                        handleFieldChange(ground.id, 'location', event.target.value)
-                                      }
-                                    />
-                                  </label>
-                                  <label>
-                                    Price / hour (PKR)
-                                    <input
-                                      required
-                                      type="number"
-                                      min="0"
-                                      step="100"
-                                      value={ground.pricePerHour}
-                                      onChange={(event) =>
-                                        handleFieldChange(ground.id, 'pricePerHour', event.target.value)
-                                      }
-                                    />
-                                  </label>
-                                </div>
-                              </div>
+                            {expandedSubsections[`${ground.id}-details`] && (
+                            <div className="admin-form__row">
+                              <label>
+                                Name
+                                <input
+                                  required
+                                  value={ground.name}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'name', event.target.value)
+                                  }
+                                />
+                              </label>
+                              <label>
+                                City
+                                <select
+                                  value={ground.city}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'city', event.target.value)
+                                  }
+                                >
+                                  <option value="">Select city</option>
+                                  {cityOptions.map((city) => (
+                                    <option key={city} value={city}>
+                                      {city}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label>
+                                Location
+                                <input
+                                  required
+                                  value={ground.location}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'location', event.target.value)
+                                  }
+                                />
+                              </label>
+                              <label>
+                                Price / hour (PKR)
+                                <input
+                                  required
+                                  type="number"
+                                  min="0"
+                                  step="100"
+                                  value={ground.pricePerHour}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'pricePerHour', event.target.value)
+                                  }
+                                />
+                              </label>
+                            </div>
                             )}
 
                             {/* Sport & Features Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'features')}
-                              className={`admin-accordion__trigger${
-                                expandedFeatures ? ' admin-accordion__trigger--open' : ''
-                              }`}
+                              style={{
+                                width: '100%',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-features`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-features`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#cbd5e1',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-features`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-features`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-features`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-features`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
+                              }}
                             >
-                              <span className="admin-accordion__label">
-                                <span className="admin-accordion__icon" aria-hidden="true">⚽</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>⚽</span>
                                 <span>Sport & Features</span>
                               </span>
-                              <span className="admin-accordion__chevron" aria-hidden="true">▾</span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-features`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-features`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
-                            {expandedFeatures && (
-                              <div className="admin-accordion__panel">
-                                <div className="admin-form__row">
-                                  <label>
-                                    Sport Category
-                                    <select
-                                      value={ground.category || ''}
-                                      onChange={(event) =>
-                                        handleFieldChange(ground.id, 'category', event.target.value)
-                                      }
-                                    >
-                                      <option value="">Select sport...</option>
-                                      {SPORT_CATEGORIES.map((cat) => (
-                                        <option key={cat} value={cat}>
-                                          {cat}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </label>
-                                </div>
-                                <div className="admin-features-card">
-                                  <h4 className="admin-features-card__title">Features</h4>
-                                  {Object.entries(GROUND_FEATURES).map(([category, options]) => (
-                                    <div key={category} className="admin-features-card__group">
-                                      <h5 className="admin-features-card__group-title">{category}</h5>
-                                      <div className="admin-features-card__options">
-                                        {options.map((feature) => {
-                                          const isSelected =
-                                            ground.features?.[category]?.includes?.(feature) ||
-                                            ground.features?.[category] === feature;
-                                          return (
-                                            <label
-                                              key={feature}
-                                              className={`admin-feature-chip${
-                                                isSelected ? ' admin-feature-chip--selected' : ''
-                                              }`}
-                                            >
-                                              <input
-                                                type="checkbox"
-                                                checked={isSelected}
-                                                onChange={(e) => {
-                                                  setGrounds((prev) =>
-                                                    prev.map((g) => {
-                                                      if (g.id !== ground.id) return g;
-                                                      const features = { ...g.features };
-                                                      if (category === 'Surface' || category === 'Venue Type') {
-                                                        features[category] = e.target.checked ? feature : '';
-                                                      } else {
-                                                        const current = new Set(features[category] || []);
-                                                        if (e.target.checked) {
-                                                          current.add(feature);
-                                                        } else {
-                                                          current.delete(feature);
-                                                        }
-                                                        features[category] = Array.from(current);
-                                                      }
-                                                      return { ...g, features };
-                                                    })
-                                                  );
-                                                }}
-                                              />
-                                              <span>{feature}</span>
-                                            </label>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
+                            {expandedSubsections[`${ground.id}-features`] && (
+                            <>
+                            <div className="admin-form__row">
+                              <label>
+                                Sport Category
+                                <select
+                                  value={ground.category || ''}
+                                  onChange={(event) =>
+                                    handleFieldChange(ground.id, 'category', event.target.value)
+                                  }
+                                >
+                                  <option value="">Select sport...</option>
+                                  {SPORT_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>
+                                      {cat}
+                                    </option>
                                   ))}
+                                </select>
+                              </label>
+                            </div>
+
+                            <div className="features-section" style={{
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '0.75rem',
+                              padding: '10px',
+                              marginBottom: '16px',
+                              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.5))',
+                              backdropFilter: 'blur(10px)'
+                            }}>
+                              <h4 style={{ marginBottom: '8px', fontSize: '12px', fontWeight: '600', color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Features</h4>
+                              {Object.entries(GROUND_FEATURES).map(([category, options]) => (
+                                <div key={category} style={{ marginBottom: '8px' }}>
+                                  <h5 style={{ fontSize: '11px', marginBottom: '4px', color: 'rgba(226, 232, 240, 0.6)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                    {category}
+                                  </h5>
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '4px' }}>
+                                    {options.map((feature) => {
+                                      const isSelected = ground.features?.[category]?.includes?.(feature) ||
+                                                        ground.features?.[category] === feature;
+                                      return (
+                                        <label
+                                          key={feature}
+                                          style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '5px',
+                                            padding: '5px 7px',
+                                            border: `1px solid ${isSelected ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                            borderRadius: '0.5rem',
+                                            cursor: 'pointer',
+                                            background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.4)',
+                                            fontSize: '11px',
+                                            color: isSelected ? '#60a5fa' : 'rgba(226, 232, 240, 0.7)',
+                                            transition: 'all 0.2s ease',
+                                          }}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            onChange={(e) => {
+                                              setGrounds((prev) =>
+                                                prev.map((g) => {
+                                                  if (g.id !== ground.id) return g;
+                                                  const features = { ...g.features };
+                                                  if (category === 'Surface' || category === 'Venue Type') {
+                                                    // Single choice
+                                                    features[category] = e.target.checked ? feature : '';
+                                                  } else {
+                                                    // Multiple choice
+                                                    if (!features[category]) features[category] = [];
+                                                    if (e.target.checked) {
+                                                      features[category] = [...features[category], feature];
+                                                    } else {
+                                                      features[category] = features[category].filter(f => f !== feature);
+                                                    }
+                                                  }
+                                                  return { ...g, features };
+                                                })
+                                              );
+                                            }}
+                                            style={{ margin: 0, cursor: 'pointer' }}
+                                          />
+                                          <span>{feature}</span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
-                              </div>
+                              ))}
+                            </div>
+                            </>
                             )}
 
                             {/* Operating Hours Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'hours')}
-                              className={`admin-accordion__trigger${
-                                expandedHours ? ' admin-accordion__trigger--open' : ''
-                              }`}
+                              style={{
+                                width: '100%',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-hours`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-hours`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#cbd5e1',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-hours`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-hours`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-hours`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-hours`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
+                              }}
                             >
-                              <span className="admin-accordion__label">
-                                <span className="admin-accordion__icon" aria-hidden="true">🕒</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>🕒</span>
                                 <span>Operating Hours</span>
                               </span>
-                              <span className="admin-accordion__chevron" aria-hidden="true">▾</span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-hours`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-hours`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
-                            {expandedHours && (
-                              <div className="admin-accordion__panel">
-                                <OperatingHoursConfigurator
-                                  ref={(ref) => {
-                                    operatingHoursRefs.current[ground.id] = ref;
-                                  }}
-                                  groundId={ground.id}
-                                  getIdToken={getIdToken}
-                                />
-                              </div>
+                            {expandedSubsections[`${ground.id}-hours`] && (
+                            <div style={{ marginTop: '0', paddingTop: '0' }}>
+                              <OperatingHoursConfigurator
+                                ref={(ref) => {
+                                  operatingHoursRefs.current[ground.id] = ref;
+                                }}
+                                groundId={ground.id}
+                                getIdToken={getIdToken}
+                              />
+                            </div>
                             )}
 
                             {/* Description Section */}
                             <button
                               type="button"
                               onClick={() => toggleSubsection(ground.id, 'description')}
-                              className={`admin-accordion__trigger${
-                                expandedDescription ? ' admin-accordion__trigger--open' : ''
-                              }`}
+                              style={{
+                                width: '100%',
+                                padding: '16px 20px',
+                                background: expandedSubsections[`${ground.id}-description`]
+                                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15))'
+                                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+                                border: expandedSubsections[`${ground.id}-description`]
+                                  ? '2px solid rgba(59, 130, 246, 0.6)'
+                                  : '1px solid rgba(71, 85, 105, 0.5)',
+                                borderRadius: '12px',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#cbd5e1',
+                                fontWeight: '600',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                marginBottom: expandedSubsections[`${ground.id}-description`] ? '16px' : '10px',
+                                marginTop: '10px',
+                                boxShadow: expandedSubsections[`${ground.id}-description`]
+                                  ? '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!expandedSubsections[`${ground.id}-description`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 1))';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!expandedSubsections[`${ground.id}-description`]) {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))';
+                                  e.currentTarget.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+                                }
+                              }}
                             >
-                              <span className="admin-accordion__label">
-                                <span className="admin-accordion__icon" aria-hidden="true">📝</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                                <span style={{ fontSize: '20px' }}>📝</span>
                                 <span>Description</span>
                               </span>
-                              <span className="admin-accordion__chevron" aria-hidden="true">▾</span>
+                              <span style={{
+                                fontSize: '12px',
+                                transform: expandedSubsections[`${ground.id}-description`] ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                color: expandedSubsections[`${ground.id}-description`] ? '#60a5fa' : '#94a3b8'
+                              }}>▼</span>
                             </button>
-                            {expandedDescription && (
-                              <div className="admin-accordion__panel">
-                                <label>
-                                  Description
-                                  <textarea
-                                    rows={3}
-                                    value={ground.description}
-                                    onChange={(event) =>
-                                      handleFieldChange(ground.id, 'description', event.target.value)
-                                    }
-                                  />
-                                </label>
-                              </div>
+                            {expandedSubsections[`${ground.id}-description`] && (
+                            <label>
+                              Description
+                              <textarea
+                                rows={3}
+                                value={ground.description}
+                                onChange={(event) =>
+                                  handleFieldChange(ground.id, 'description', event.target.value)
+                                }
+                              />
+                            </label>
                             )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Sticky Footer with Action Buttons */}
-                                <div style={{
-                                  position: 'sticky',
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  padding: '20px 24px',
-                                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
-                                  backdropFilter: 'blur(12px)',
-                                  borderTop: '1px solid rgba(168, 85, 247, 0.3)',
-                                  borderRadius: '0 0 12px 12px',
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  gap: '16px',
-                                  boxShadow: '0 -8px 24px rgba(0, 0, 0, 0.3)',
-                                }}>
-                                  {/* Left side - Status/Info */}
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    fontSize: '14px',
-                                    color: 'rgba(226, 232, 240, 0.8)',
-                                  }}>
-                                    <span style={{
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '8px',
-                                      padding: '6px 12px',
-                                      background: 'rgba(59, 130, 246, 0.15)',
-                                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                                      borderRadius: '6px',
-                                      fontSize: '13px',
-                                      fontWeight: '500',
-                                    }}>
-                                      <span style={{ fontSize: '16px' }}>📝</span>
-                                      Ground #{ground.id}
-                                    </span>
-                                  </div>
-
-                                  {/* Right side - Action Buttons */}
-                                  <div style={{
-                                    display: 'flex',
-                                    gap: '12px',
-                                  }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDelete(ground.id)}
-                                      disabled={busyGroundId === ground.id}
-                                      style={{
-                                        padding: '10px 20px',
-                                        background: 'rgba(239, 68, 68, 0.15)',
-                                        border: '1.5px solid rgba(239, 68, 68, 0.5)',
-                                        borderRadius: '8px',
-                                        color: '#fca5a5',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: busyGroundId === ground.id ? 'not-allowed' : 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        opacity: busyGroundId === ground.id ? 0.5 : 1,
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        if (busyGroundId !== ground.id) {
-                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
-                                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.7)';
-                                          e.currentTarget.style.color = '#fecaca';
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        if (busyGroundId !== ground.id) {
-                                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                                          e.currentTarget.style.color = '#fca5a5';
-                                        }
-                                      }}
-                                    >
-                                      🗑️ Delete Ground
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleSave(ground.id)}
-                                      disabled={busyGroundId === ground.id}
-                                      style={{
-                                        padding: '10px 28px',
-                                        background: busyGroundId === ground.id
-                                          ? 'rgba(59, 130, 246, 0.3)'
-                                          : 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.9))',
-                                        border: '1.5px solid rgba(168, 85, 247, 0.6)',
-                                        borderRadius: '8px',
-                                        color: '#ffffff',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: busyGroundId === ground.id ? 'not-allowed' : 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: busyGroundId === ground.id
-                                          ? 'none'
-                                          : '0 4px 12px rgba(59, 130, 246, 0.3)',
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        if (busyGroundId !== ground.id) {
-                                          e.currentTarget.style.transform = 'translateY(-1px)';
-                                          e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        if (busyGroundId !== ground.id) {
-                                          e.currentTarget.style.transform = 'translateY(0)';
-                                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-                                        }
-                                      }}
-                                    >
-                                      {busyGroundId === ground.id ? '💾 Saving…' : '💾 Save Changes'}
-                                    </button>
                                   </div>
                                 </div>
                               </div>

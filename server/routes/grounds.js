@@ -1,7 +1,6 @@
 const express = require('express');
 const { getDb } = require('../db');
-const { isValidDate } = require('../utils/validators');
-const { SLOT_TIMES } = require('../utils/constants');
+const { isValidDate, generateTimeSlots } = require('../utils/validators');
 
 const router = express.Router();
 
@@ -121,6 +120,18 @@ router.get('/:groundId/availability', (req, res) => {
     return res.json({ groundId: Number(groundId), date, availability: [] });
   }
 
+  // If no operating hours found, return empty availability
+  if (!operatingHours) {
+    return res.json({ groundId: Number(groundId), date, availability: [] });
+  }
+
+  // Generate time slots based on operating hours and slot duration
+  const slots = generateTimeSlots(
+    operatingHours.start_time,
+    operatingHours.end_time,
+    operatingHours.slot_duration_minutes || 60 // Default to 60 minutes if not set
+  );
+
   const bookings = db
     .prepare(
       `SELECT slot
@@ -137,7 +148,7 @@ router.get('/:groundId/availability', (req, res) => {
 
   const isToday = date === todayPKT;
 
-  const availability = SLOT_TIMES.map((slot) => {
+  const availability = slots.map((slot) => {
     let available = !bookedSlots.has(slot);
 
     // If it's today, check if the slot time has passed

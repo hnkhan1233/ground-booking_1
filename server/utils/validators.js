@@ -36,7 +36,26 @@ function validateGroundPayload(payload) {
   };
 }
 
+function generateTimeSlots(startTime, endTime, durationMinutes) {
+  const slots = [];
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+
+  let currentMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+
+  while (currentMinutes + durationMinutes <= endMinutes) {
+    const hour = Math.floor(currentMinutes / 60);
+    const minute = currentMinutes % 60;
+    slots.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+    currentMinutes += durationMinutes;
+  }
+
+  return slots;
+}
+
 module.exports = {
   isValidDate,
   validateGroundPayload,
+  generateTimeSlots,
 };

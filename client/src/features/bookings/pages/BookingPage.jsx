@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../../config.js';
 import { useAuth } from '../../../contexts/AuthContext.jsx';
+import { formatCurrency } from '../../../utils/currencyHelper.js';
 import '../../../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');

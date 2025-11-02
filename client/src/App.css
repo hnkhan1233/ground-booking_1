@@ -368,15 +368,15 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1.5rem;
-  margin-bottom: 1.75rem;
-  padding-bottom: 1.25rem;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
   border-bottom: 1px solid rgba(103, 232, 249, 0.12);
 }
 
 .ground-list__header h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.65rem;
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.2;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(34, 211, 238, 0.95));
@@ -387,16 +387,16 @@
 
 .ground-list__subhead {
   margin: 0;
-  font-size: 0.92rem;
-  color: rgba(148, 163, 184, 0.9);
-  line-height: 1.5;
+  font-size: 0.82rem;
+  color: rgba(148, 163, 184, 0.85);
+  line-height: 1.4;
 }
 
 .city-buttons,
 .category-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.65rem;
 }
 
 .city-button,
@@ -406,13 +406,13 @@
   background: rgba(6, 10, 28, 0.75);
   color: var(--color-text-muted);
   font-weight: 600;
-  padding: 0.75rem 1.35rem;
+  padding: 0.55rem 1.15rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   cursor: pointer;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, color 0.22s ease, background 0.22s ease;
-  font-size: 0.97rem;
+  font-size: 0.9rem;
   letter-spacing: 0.012em;
   backdrop-filter: var(--blur-strength);
   box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.3);

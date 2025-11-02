@@ -699,42 +699,42 @@ function GroundDetailPage() {
 
       {lightboxIndex !== null && media[lightboxIndex] && (
         <div className="detail-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
+          <button
+            type="button"
+            className="detail-lightbox__close"
+            onClick={closeLightbox}
+            aria-label="Close gallery"
+          >
+            ✕
+          </button>
+          {media.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="detail-lightbox__nav detail-lightbox__nav--prev"
+                onClick={() => stepLightbox(-1)}
+                aria-label="Previous image"
+              >
+                &lt;
+              </button>
+              <button
+                type="button"
+                className="detail-lightbox__nav detail-lightbox__nav--next"
+                onClick={() => stepLightbox(1)}
+                aria-label="Next image"
+              >
+                &gt;
+              </button>
+            </>
+          )}
           <div className="detail-lightbox__inner" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="detail-lightbox__close"
-              onClick={closeLightbox}
-              aria-label="Close gallery"
-            >
-              ✕
-            </button>
-            {media.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  className="detail-lightbox__nav detail-lightbox__nav--prev"
-                  onClick={() => stepLightbox(-1)}
-                  aria-label="Previous image"
-                >
-                  &lt;
-                </button>
-                <button
-                  type="button"
-                  className="detail-lightbox__nav detail-lightbox__nav--next"
-                  onClick={() => stepLightbox(1)}
-                  aria-label="Next image"
-                >
-                  &gt;
-                </button>
-              </>
-            )}
             <img
               src={media[lightboxIndex].url}
               alt={`${ground.name} gallery ${lightboxIndex + 1}`}
             />
-            <div className="detail-lightbox__counter">
-              {lightboxIndex + 1} / {media.length}
-            </div>
+          </div>
+          <div className="detail-lightbox__counter">
+            {lightboxIndex + 1} / {media.length}
           </div>
         </div>
       )}

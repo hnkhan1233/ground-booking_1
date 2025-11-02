@@ -3891,7 +3891,6 @@
   justify-content: center;
   z-index: 80;
   padding: 2rem 1rem;
-  backdrop-filter: blur(2px);
 }
 
 .detail-lightbox__inner {
@@ -3900,6 +3899,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
 }
 
 .detail-lightbox__inner img {
@@ -3929,6 +3929,7 @@
   transition: all 0.2s ease;
   z-index: 81;
   line-height: 1;
+  pointer-events: auto;
 }
 
 .detail-lightbox__close:hover {
@@ -3954,6 +3955,7 @@
   align-items: center;
   justify-content: center;
   z-index: 81;
+  pointer-events: auto;
 }
 
 .detail-lightbox__nav:hover {
@@ -3984,6 +3986,7 @@
   border-radius: 2rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   z-index: 81;
+  pointer-events: auto;
 }
 
 .ground-detail__content {

@@ -1,4 +1,5 @@
 const { getAuth } = require('../firebase');
+const { getDb } = require('../db');
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')
@@ -17,7 +18,24 @@ function isAdminUser(user) {
     return true;
   }
   const email = normalizeEmail(user.email);
-  return email ? ADMIN_EMAILS.includes(email) : false;
+  if (!email) {
+    return false;
+  }
+
+  // Check environment variables (legacy)
+  if (ADMIN_EMAILS.includes(email)) {
+    return true;
+  }
+
+  // Check database
+  try {
+    const db = getDb();
+    const admin = db.prepare('SELECT id FROM admin_users WHERE email = ?').get(email);
+    return admin !== undefined;
+  } catch (error) {
+    console.error('Error checking admin status from database:', error);
+    return false;
+  }
 }
 
 async function authenticate(req, res, next) {

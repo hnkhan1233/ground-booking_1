@@ -113,6 +113,11 @@ function AdminPage() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState('');
   const [activeTab, setActiveTab] = useState('stats');
+  const [admins, setAdmins] = useState([]);
+  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminName, setNewAdminName] = useState('');
+  const [adminFormBusy, setAdminFormBusy] = useState(false);
   const totalBookings = stats?.totals?.bookings ?? 0;
   const totalRevenue = stats?.totals?.revenue ?? 0;
   const statsByGround = stats?.byGround ?? [];
@@ -1251,6 +1256,13 @@ function AdminPage() {
                 onClick={() => handleTabChange('venues')}
               >
                 Grounds & bookings
+              </button>
+              <button
+                type="button"
+                className={`admin-tab ${activeTab === 'admins' ? 'admin-tab--active' : ''}`}
+                onClick={() => handleTabChange('admins')}
+              >
+                Admin accounts
               </button>
             </div>
 

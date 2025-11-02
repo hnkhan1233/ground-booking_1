@@ -6,6 +6,7 @@ const bookingsRoutes = require('./bookings');
 const operatingHoursRoutes = require('./operating-hours');
 const adminGroundsRoutes = require('./admin/grounds');
 const adminStatsRoutes = require('./admin/stats');
+const adminUsersRoutes = require('./admin/admins');
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/operating-hours', operatingHoursRoutes);
 // Admin routes
 router.use('/admin/grounds', adminGroundsRoutes);
 router.use('/admin/stats', adminStatsRoutes);
+router.use('/admin/admins', adminUsersRoutes);
 
 module.exports = router;

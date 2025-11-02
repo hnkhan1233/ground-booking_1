@@ -698,8 +698,8 @@ function GroundDetailPage() {
       </div>
 
       {lightboxIndex !== null && media[lightboxIndex] && (
-        <div className="detail-lightbox" role="dialog" aria-modal="true">
-          <div className="detail-lightbox__inner">
+        <div className="detail-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
+          <div className="detail-lightbox__inner" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               className="detail-lightbox__close"

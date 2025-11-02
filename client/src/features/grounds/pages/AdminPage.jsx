@@ -1377,25 +1377,21 @@ function AdminPage() {
                               </tr>
                             </thead>
                             <tbody>
-                              {statsByCity.map((row, index) => (
-                                <tr key={row.city}>
-                                  <td>
-                                    {index === 0 && row.bookingCount > 0 && (
-                                      <>
-                                        <span className="badge badge--info">Lead</span>{' '}
-                                      </>
-                                    )}
-                                    {row.city}
-                                  </td>
-                                  <td align="right"><strong>{row.bookingCount}</strong></td>
-                                  <td align="right">{formatCurrency(row.revenue)}</td>
-                                  <td align="right" className="muted">
-                                    {totalRevenue > 0
-                                      ? `${Math.round((row.revenue / totalRevenue) * 100)}%`
-                                      : '0%'}
-                                  </td>
-                                </tr>
-                              ))}
+                              {statsByCity.map((row, index) => {
+                                const isHighest = index === 0 && row.bookingCount > 0;
+                                return (
+                                  <tr key={row.city} className={isHighest ? 'highlight' : ''}>
+                                    <td>{row.city}</td>
+                                    <td align="right"><strong>{row.bookingCount}</strong></td>
+                                    <td align="right">{formatCurrency(row.revenue)}</td>
+                                    <td align="right" className="muted">
+                                      {totalRevenue > 0
+                                        ? `${Math.round((row.revenue / totalRevenue) * 100)}%`
+                                        : '0%'}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                               {!statsByCity.length && (
                                 <tr>
                                   <td colSpan={4} className="status status--muted">No city data available.</td>

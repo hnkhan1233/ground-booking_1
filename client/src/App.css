@@ -2054,6 +2054,15 @@
   background: rgba(168, 85, 247, 0.12);
 }
 
+.stats-table tbody tr.highlight {
+  background: rgba(168, 85, 247, 0.2);
+  border-left: 3px solid rgba(168, 85, 247, 0.8);
+}
+
+.stats-table tbody tr.highlight:hover {
+  background: rgba(168, 85, 247, 0.28);
+}
+
 .admin-card__header {
   display: flex;
   justify-content: space-between;

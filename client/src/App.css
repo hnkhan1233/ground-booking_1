@@ -69,7 +69,11 @@
   overflow: hidden;
   padding: 0.9rem 6vw 1.1rem;
   color: var(--color-text-primary);
-  background: var(--color-bg-hero);
+  background: linear-gradient(135deg, rgba(20, 38, 75, 0.92), rgba(35, 25, 65, 0.88)),
+              url('https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1920&h=800&fit=crop&q=80');
+  background-size: cover;
+  background-position: center 30%;
+  background-attachment: fixed;
   border-bottom: 2px solid rgba(103, 232, 249, 0.25);
   box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4),
               inset 0 -1px 0 rgba(148, 163, 184, 0.15);

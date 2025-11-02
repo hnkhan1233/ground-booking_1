@@ -67,11 +67,13 @@
 .hero--sporty {
   position: relative;
   overflow: hidden;
-  padding: 0.9rem 6vw 0.7rem;
+  padding: 0.9rem 6vw 1.1rem;
   color: var(--color-text-primary);
   background: var(--color-bg-hero);
-  border-bottom: 1px solid rgba(103, 232, 249, 0.16);
-  box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.1);
+  border-bottom: 2px solid rgba(103, 232, 249, 0.25);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4),
+              inset 0 -1px 0 rgba(148, 163, 184, 0.15);
+  margin-bottom: 1.75rem;
 }
 
 .hero--sporty::before {
@@ -358,7 +360,7 @@
 .layout--sporty {
   grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
   gap: clamp(1.5rem, 3vw, 2.25rem);
-  padding: 1.5rem 6vw 2rem;
+  padding: 0 6vw 2rem;
   align-items: stretch;
 }
 
@@ -367,20 +369,26 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(103, 232, 249, 0.12);
 }
 
 .ground-list__header h2 {
-  margin: 0 0 0.3rem;
-  font-size: 1.55rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.2;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(34, 211, 238, 0.95));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .ground-list__subhead {
   margin: 0;
-  font-size: 0.9rem;
-  color: rgba(148, 163, 184, 0.85);
+  font-size: 0.92rem;
+  color: rgba(148, 163, 184, 0.9);
   line-height: 1.5;
 }
 
@@ -394,20 +402,20 @@
 .city-button,
 .category-filter {
   border-radius: 999px;
-  border: 1.5px solid var(--color-border-strong);
-  background: rgba(6, 10, 28, 0.68);
+  border: 1.5px solid rgba(103, 232, 249, 0.2);
+  background: rgba(6, 10, 28, 0.75);
   color: var(--color-text-muted);
   font-weight: 600;
-  padding: 0.7rem 1.25rem;
+  padding: 0.75rem 1.35rem;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
   cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, color 0.22s ease;
-  font-size: 0.95rem;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, color 0.22s ease, background 0.22s ease;
+  font-size: 0.97rem;
   letter-spacing: 0.012em;
   backdrop-filter: var(--blur-strength);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.3);
 }
 
 .city-button:focus-visible,
@@ -419,17 +427,18 @@
 
 .city-button:hover {
   border-color: rgba(168, 85, 247, 0.55);
-  background: rgba(25, 17, 44, 0.8);
+  background: rgba(25, 17, 44, 0.85);
   color: var(--color-text-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-strong);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
 }
 
 .city-button--active {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(34, 211, 238, 0.25));
-  border-color: rgba(168, 85, 247, 0.75);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(34, 211, 238, 0.3));
+  border-color: rgba(168, 85, 247, 0.8);
   color: var(--color-text-primary);
-  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.28), var(--shadow-soft);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35),
+              0 8px 24px -8px rgba(168, 85, 247, 0.5);
 }
 
 .category-filter {
@@ -439,17 +448,18 @@
 
 .category-filter:hover {
   border-color: rgba(34, 211, 238, 0.65);
-  background: rgba(13, 148, 136, 0.2);
+  background: rgba(13, 148, 136, 0.25);
   color: rgba(224, 242, 254, 0.96);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-strong);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
 }
 
 .category-filter--active {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.24), rgba(45, 212, 191, 0.22));
-  border-color: rgba(34, 211, 238, 0.75);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.3), rgba(45, 212, 191, 0.28));
+  border-color: rgba(34, 211, 238, 0.8);
   color: rgba(224, 242, 254, 0.98);
-  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.28), var(--shadow-soft);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.35),
+              0 8px 24px -8px rgba(34, 211, 238, 0.5);
 }
 
 .city-button__count,
@@ -676,8 +686,9 @@
 
 .booking-panel--sporty {
   background: linear-gradient(150deg, rgba(6, 11, 32, 0.92), rgba(31, 16, 54, 0.9));
-  border: 1px solid var(--color-border-soft);
-  box-shadow: var(--shadow-strong);
+  border: 2px solid rgba(103, 232, 249, 0.25);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(168, 85, 247, 0.15) inset;
   padding: 2.35rem;
   backdrop-filter: var(--blur-strength);
   position: sticky;
@@ -718,15 +729,20 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  padding-bottom: 1.15rem;
-  border-bottom: 1px solid rgba(129, 140, 248, 0.18);
+  padding-bottom: 1.35rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.25);
+  box-shadow: 0 1px 0 rgba(34, 211, 238, 0.1);
 }
 
 .booking-panel--sporty h2 {
   margin: 0;
-  font-size: 1.42rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(34, 211, 238, 0.95));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1.2;
 }
 

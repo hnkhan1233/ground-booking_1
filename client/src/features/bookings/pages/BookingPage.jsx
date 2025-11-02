@@ -736,12 +736,6 @@ function BookingPage() {
       <main className="layout layout--sporty">
         <section className="ground-list">
           <div className="ground-list__header">
-            <div>
-              <h2>Select your city</h2>
-              <p className="ground-list__subhead">
-                Choose a city to see venues, facilities, and hourly rates.
-              </p>
-            </div>
             <div className="city-buttons">
               {cityButtons.map(({ city, count }) => {
                 const isActive = city === cityFilter;
@@ -767,13 +761,7 @@ function BookingPage() {
             </div>
           </div>
 
-          <div className="ground-list__header" style={{ marginTop: '2rem' }}>
-            <div>
-              <h3>Filter by sport</h3>
-              <p className="ground-list__subhead">
-                Find grounds for your favorite sport
-              </p>
-            </div>
+          <div className="ground-list__header" style={{ marginTop: '1.5rem' }}>
             <div className="category-filters">
               <button
                 type="button"

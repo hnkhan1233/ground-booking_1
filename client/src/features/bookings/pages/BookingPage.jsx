@@ -661,7 +661,7 @@ function BookingPage() {
           <div className="hero__header">
             <span className="hero__eyebrow">Pakistan Grounds Network</span>
             <div className="hero__actions">
-              {user ? (
+              {initializing ? null : user ? (
                 <>
                   <Link to="/account" className="hero__action-link">
                     Account

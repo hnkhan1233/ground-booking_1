@@ -792,7 +792,7 @@ function BookingPage() {
                     type="button"
                     key={ground.id}
                     className={`ground-card ${isActive ? 'ground-card--active' : ''}`}
-                    onClick={() => { setDropdownCity(ground.city); setCityDropdownOpen(true); }}
+                    onClick={() => setSelectedGroundId(ground.id)}
                   >
                     {ground.imageUrl ? (
                       <img src={ground.imageUrl} alt={ground.name} className="ground-card__image" />
@@ -848,7 +848,12 @@ function BookingPage() {
               </div>
 
               <div className="booking-panel__section booking-panel__section--card">
-                <div className="booking-panel__ground booking-panel__ground--sporty">
+                <button
+                  type="button"
+                  className="booking-panel__ground booking-panel__ground--sporty booking-panel__ground--clickable"
+                  onClick={() => { setDropdownCity(selectedGround.city); setCityDropdownOpen(true); }}
+                  title="Click to view other grounds in this city"
+                >
                   {selectedGround.imageUrl && (
                     <img
                       src={selectedGround.imageUrl}
@@ -860,7 +865,7 @@ function BookingPage() {
                     <h3>{selectedGround.name}</h3>
                     <p>{selectedGround.city} · {selectedGround.location}</p>
                   </div>
-                </div>
+                </button>
               </div>
 
               <div className="booking-panel__section booking-panel__section--card">

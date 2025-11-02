@@ -693,10 +693,9 @@ function BookingPage() {
 
           <div className="hero__body">
             <div className="hero__content">
-              <h1>Lock the perfect slot before the whistle blows</h1>
+              <h1>Book now</h1>
               <p className="hero__tagline">
-                Real-time turf availability across Karachi, Lahore, Islamabad, Rawalpindi and beyond.
-                Reserve within seconds, pay on arrival, and focus on your game.
+                Real-time turf availability across Karachi, Lahore, Islamabad, and Rawalpindi
               </p>
               <div className="hero__cta">
                 <button

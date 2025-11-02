@@ -3677,6 +3677,7 @@
   display: flex;
   align-items: flex-end;
   padding: 0 0 clamp(2.5rem, 5vw, 3.5rem);
+  pointer-events: none;
 }
 
 .detail-hero__content {

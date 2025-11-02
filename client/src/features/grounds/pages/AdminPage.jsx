@@ -434,10 +434,10 @@ function AdminPage() {
   }, [user, authorizedFetch, handleAuthFailure, loadGrounds, loadStats, showFlash]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === 'stats' && !statsLoading) {
+    if (isAdmin && activeTab === 'stats') {
       loadStats();
     }
-  }, [isAdmin, activeTab, loadStats, statsLoading]);
+  }, [isAdmin, activeTab, loadStats]);
 
   useEffect(() => {
     if (user) {

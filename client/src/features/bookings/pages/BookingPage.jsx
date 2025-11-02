@@ -1162,43 +1162,46 @@ function BookingPage() {
       )}
 
       {cityDropdownOpen && dropdownCity && (
-        <div className="modal-backdrop" onClick={() => setCityDropdownOpen(false)} role="dialog" aria-modal="true">
-          <div className="city-dropdown-panel" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="modal-close"
-              onClick={() => setCityDropdownOpen(false)}
-              aria-label="Close"
-            >
-              ✕
-            </button>
-            <h3 className="city-dropdown-title">Grounds in {dropdownCity}</h3>
-            <div className="city-dropdown-list">
+        <>
+          <div className="city-dropdown-overlay" onClick={() => setCityDropdownOpen(false)} />
+          <div className="city-dropdown">
+            <div className="city-dropdown__header">
+              <h3>Grounds in {dropdownCity}</h3>
+              <button
+                type="button"
+                className="city-dropdown__close"
+                onClick={() => setCityDropdownOpen(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="city-dropdown__list">
               {grounds
                 .filter((ground) => ground.city === dropdownCity)
                 .map((ground) => (
                   <button
                     key={ground.id}
                     type="button"
-                    className="city-dropdown-item"
+                    className="city-dropdown__item"
                     onClick={() => {
                       setSelectedGroundId(ground.id);
                       setCityDropdownOpen(false);
                     }}
                   >
                     {ground.imageUrl && (
-                      <img src={ground.imageUrl} alt={ground.name} className="city-dropdown-item__image" />
+                      <img src={ground.imageUrl} alt={ground.name} className="city-dropdown__item-image" />
                     )}
-                    <div className="city-dropdown-item__content">
+                    <div className="city-dropdown__item-content">
                       <h4>{ground.name}</h4>
-                      <p className="city-dropdown-item__location">{ground.location}</p>
-                      <p className="city-dropdown-item__price">PKR {ground.pricePerHour.toLocaleString()} / hour</p>
+                      <p className="city-dropdown__item-location">{ground.location}</p>
+                      <p className="city-dropdown__item-price">PKR {ground.pricePerHour.toLocaleString()} / hour</p>
                     </div>
                   </button>
                 ))}
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

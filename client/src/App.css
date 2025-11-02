@@ -1982,34 +1982,42 @@
 
 .stats-tables {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
 .stats-table {
-  background: rgba(15, 23, 42, 0.8);
-  border-radius: 1.2rem;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(150deg, rgba(15, 23, 42, 0.9), rgba(25, 35, 60, 0.85));
+  border-radius: 1.3rem;
+  border: 1px solid rgba(103, 232, 249, 0.15);
   overflow: hidden;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
 }
 
 .stats-table__header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  padding: 1.1rem 1.3rem 0.9rem;
+  align-items: center;
+  padding: 1.35rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(103, 232, 249, 0.1);
 }
 
 .stats-table__header h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(34, 211, 238, 0.95));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stats-table__caption {
-  font-size: 0.85rem;
-  color: rgba(148, 163, 184, 0.7);
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.65);
   letter-spacing: 0.02em;
   font-weight: 500;
+  text-transform: uppercase;
 }
 
 .stats-table table {
@@ -2019,20 +2027,31 @@
 
 .stats-table th,
 .stats-table td {
-  padding: 0.65rem 0.95rem;
+  padding: 0.85rem 1.5rem;
   text-align: left;
-  font-size: 0.87rem;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  white-space: nowrap;
+  font-size: 0.88rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  word-break: break-word;
 }
 
+.stats-table th {
+  background: rgba(30, 41, 59, 0.6);
+  font-weight: 600;
+  color: rgba(203, 213, 225, 0.85);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stats-table tbody tr {
+  transition: background 0.2s ease;
+}
 
 .stats-table tbody tr:nth-child(even) {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(30, 41, 59, 0.5);
 }
 
 .stats-table tbody tr:hover {
-  background: rgba(139, 92, 246, 0.15);
+  background: rgba(168, 85, 247, 0.12);
 }
 
 .admin-card__header {

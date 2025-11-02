@@ -62,6 +62,8 @@ function BookingPage() {
   const [authDisplayName, setAuthDisplayName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  const [dropdownCity, setDropdownCity] = useState(null);
 
   const {
     user,
@@ -790,7 +792,7 @@ function BookingPage() {
                     type="button"
                     key={ground.id}
                     className={`ground-card ${isActive ? 'ground-card--active' : ''}`}
-                    onClick={() => setSelectedGroundId(ground.id)}
+                    onClick={() => { setDropdownCity(ground.city); setCityDropdownOpen(true); }}
                   >
                     {ground.imageUrl ? (
                       <img src={ground.imageUrl} alt={ground.name} className="ground-card__image" />
@@ -1150,6 +1152,46 @@ function BookingPage() {
                 {profileSaving ? 'Saving...' : 'Save & Continue'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {cityDropdownOpen && dropdownCity && (
+        <div className="modal-backdrop" onClick={() => setCityDropdownOpen(false)} role="dialog" aria-modal="true">
+          <div className="city-dropdown-panel" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setCityDropdownOpen(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <h3 className="city-dropdown-title">Grounds in {dropdownCity}</h3>
+            <div className="city-dropdown-list">
+              {grounds
+                .filter((ground) => ground.city === dropdownCity)
+                .map((ground) => (
+                  <button
+                    key={ground.id}
+                    type="button"
+                    className="city-dropdown-item"
+                    onClick={() => {
+                      setSelectedGroundId(ground.id);
+                      setCityDropdownOpen(false);
+                    }}
+                  >
+                    {ground.imageUrl && (
+                      <img src={ground.imageUrl} alt={ground.name} className="city-dropdown-item__image" />
+                    )}
+                    <div className="city-dropdown-item__content">
+                      <h4>{ground.name}</h4>
+                      <p className="city-dropdown-item__location">{ground.location}</p>
+                      <p className="city-dropdown-item__price">PKR {ground.pricePerHour.toLocaleString()} / hour</p>
+                    </div>
+                  </button>
+                ))}
+            </div>
           </div>
         </div>
       )}

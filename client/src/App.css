@@ -1335,6 +1335,119 @@
   color: #f8fafc;
 }
 
+.city-dropdown-panel {
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 1.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  width: min(560px, 100%);
+  max-height: 70vh;
+  padding: 2.2rem 2rem 2.6rem;
+  position: relative;
+  box-shadow: 0 40px 80px -40px rgba(15, 23, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.city-dropdown-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a855f7 0%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.city-dropdown-list {
+  display: grid;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  flex: 1;
+}
+
+.city-dropdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.city-dropdown-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.city-dropdown-list::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.4);
+  border-radius: 3px;
+}
+
+.city-dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.6);
+}
+
+.city-dropdown-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.city-dropdown-item:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 8px 16px -6px rgba(168, 85, 247, 0.3);
+  transform: translateX(6px);
+}
+
+.city-dropdown-item__image {
+  width: 100px;
+  height: 80px;
+  border-radius: 0.8rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.city-dropdown-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+.city-dropdown-item__content h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.city-dropdown-item__location {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(203, 213, 225, 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.city-dropdown-item__price {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #a855f7;
+}
+
 .auth-tabs {
   display: inline-flex;
   background: rgba(30, 41, 59, 0.8);

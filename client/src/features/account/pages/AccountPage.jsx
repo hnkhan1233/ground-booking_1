@@ -154,38 +154,62 @@ function AccountPage() {
     }
   };
 
+  const isAdminAccount = user?.email?.toLowerCase() === 'hnkhan123.hk1@gmail.com';
+
   return (
-    <div className="app app--sporty account--sporty">
-      <div className="account__header account__header--sporty">
-        <div>
-          <h1>My account</h1>
-          <p>Manage your profile and booking history.</p>
+    <div className="app app--sporty">
+      <header className="hero hero--sporty">
+        <div className="hero__overlay">
+          <div className="hero__header">
+            <span className="hero__eyebrow">Pakistan Grounds Network</span>
+            <div className="hero__actions">
+              <Link to="/" className="hero__action-link">
+                Back to Booking
+              </Link>
+              {isAdminAccount && (
+                <Link to="/admin" className="hero__action-link hero__action-link--accent">
+                  Admin Console
+                </Link>
+              )}
+              <button
+                type="button"
+                className="hero__action-link hero__action-link--ghost"
+                onClick={logout}
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+
+          <div className="hero__body">
+            <div className="hero__content">
+              <h1>My Account</h1>
+              <p className="hero__tagline">
+                Manage your profile and view your booking history
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="account__actions">
-          <Link to="/" className="link-button link-button--inline">Back to booking</Link>
-          <button type="button" className="ghost-button" onClick={() => logout()}>
-            Log out
+      </header>
+
+      <main style={{ maxWidth: '100%', paddingTop: '2rem' }}>
+        <div className="account-tabs account-tabs--sporty">
+          <button
+            className={`account-tab ${activeTab === 'account' ? 'account-tab--active' : ''}`}
+            onClick={() => handleTabChange('account')}
+          >
+            Account Information
+          </button>
+          <button
+            className={`account-tab ${activeTab === 'bookings' ? 'account-tab--active' : ''}`}
+            onClick={() => handleTabChange('bookings')}
+          >
+            Booking History
           </button>
         </div>
-      </div>
 
-      <div className="account-tabs account-tabs--sporty">
-        <button
-          className={`account-tab ${activeTab === 'account' ? 'account-tab--active' : ''}`}
-          onClick={() => handleTabChange('account')}
-        >
-          Account Information
-        </button>
-        <button
-          className={`account-tab ${activeTab === 'bookings' ? 'account-tab--active' : ''}`}
-          onClick={() => handleTabChange('bookings')}
-        >
-          Booking History
-        </button>
-      </div>
-
-      <div className="account-card account-card--sporty">
-        {activeTab === 'account' && (
+        <div className="account-card account-card--sporty">
+          {activeTab === 'account' && (
           isLoading ? (
             <p className="status">Loading profile…</p>
           ) : (
@@ -280,7 +304,15 @@ function AccountPage() {
             </div>
           )
         )}
-      </div>
+        </div>
+      </main>
+
+      <footer className="footer footer--sporty">
+        <div>
+          <p>Need to cancel? Share your booking ID with the facility manager for a quick release.</p>
+          <p className="footer__credit">Built for competitive squads and weekend warriors across Pakistan.</p>
+        </div>
+      </footer>
     </div>
   );
 }

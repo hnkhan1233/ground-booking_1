@@ -115,8 +115,10 @@ function AdminPage() {
   const [activeTab, setActiveTab] = useState('stats');
   const [admins, setAdmins] = useState([]);
   const [adminsLoading, setAdminsLoading] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState('admin');
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminName, setNewAdminName] = useState('');
+  const [newAdminRole, setNewAdminRole] = useState('admin');
   const [adminFormBusy, setAdminFormBusy] = useState(false);
   const totalBookings = stats?.totals?.bookings ?? 0;
   const totalRevenue = stats?.totals?.revenue ?? 0;
@@ -392,6 +394,7 @@ function AdminPage() {
       }
       const data = await response.json();
       setAdmins(data.admins || []);
+      setCurrentUserRole(data.currentUserRole || 'admin');
     } catch (error) {
       console.error(error);
       showFlash('error', error.message || 'Could not load admin users.');
@@ -417,6 +420,7 @@ function AdminPage() {
         body: JSON.stringify({
           email: newAdminEmail.trim(),
           name: newAdminName.trim() || null,
+          role: newAdminRole,
         }),
       });
 
@@ -433,6 +437,7 @@ function AdminPage() {
       setAdmins((prev) => [newAdmin, ...prev]);
       setNewAdminEmail('');
       setNewAdminName('');
+      setNewAdminRole('admin');
       showFlash('success', 'Admin user created successfully');
     } catch (error) {
       console.error(error);
@@ -440,7 +445,7 @@ function AdminPage() {
     } finally {
       setAdminFormBusy(false);
     }
-  }, [authorizedFetch, handleAuthFailure, showFlash, newAdminEmail, newAdminName]);
+  }, [authorizedFetch, handleAuthFailure, showFlash, newAdminEmail, newAdminName, newAdminRole]);
 
   const deleteAdmin = useCallback(async (adminId, adminEmail) => {
     if (!window.confirm(`Remove admin access for ${adminEmail}? This cannot be undone.`)) {
@@ -2323,6 +2328,17 @@ function AdminPage() {
                         disabled={adminFormBusy}
                       />
                     </label>
+                    <label>
+                      Role
+                      <select
+                        value={newAdminRole}
+                        onChange={(e) => setNewAdminRole(e.target.value)}
+                        disabled={adminFormBusy}
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="sub_admin">Sub Admin</option>
+                      </select>
+                    </label>
                   </div>
                   <button
                     type="submit"
@@ -2350,13 +2366,18 @@ function AdminPage() {
                         <tr>
                           <th align="left">Email</th>
                           <th align="left">Name</th>
+                          <th align="left">Role</th>
                           <th align="left">Created</th>
                           <th align="left">Added by</th>
                           <th align="right">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {admins.map((admin) => (
+                        {admins.map((admin) => {
+                          const isSuperAdmin = admin.role === 'super_admin';
+                          const canDelete = admin.email !== user?.email && !isSuperAdmin && currentUserRole !== 'sub_admin';
+
+                          return (
                           <tr key={admin.id}>
                             <td>
                               <strong>{admin.email}</strong>
@@ -2367,6 +2388,17 @@ function AdminPage() {
                               )}
                             </td>
                             <td>{admin.name || '—'}</td>
+                            <td>
+                              <span className={`badge ${
+                                isSuperAdmin ? 'badge--success' :
+                                admin.role === 'admin' ? 'badge--primary' :
+                                'badge--secondary'
+                              }`}>
+                                {isSuperAdmin ? 'Main Admin' :
+                                 admin.role === 'admin' ? 'Admin' :
+                                 'Sub Admin'}
+                              </span>
+                            </td>
                             <td className="muted">
                               {new Date(admin.created_at).toLocaleDateString('en-US', {
                                 month: 'short',
@@ -2380,10 +2412,14 @@ function AdminPage() {
                                 type="button"
                                 className="ghost-button ghost-button--danger"
                                 onClick={() => deleteAdmin(admin.id, admin.email)}
-                                disabled={admin.email === user?.email}
+                                disabled={!canDelete}
                                 title={
                                   admin.email === user?.email
                                     ? 'You cannot remove your own admin access'
+                                    : isSuperAdmin
+                                    ? 'Main admin cannot be removed'
+                                    : currentUserRole === 'sub_admin'
+                                    ? 'Sub-admins cannot remove other admins'
                                     : 'Remove admin access'
                                 }
                               >
@@ -2391,10 +2427,11 @@ function AdminPage() {
                               </button>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                         {admins.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="status status--muted">
+                            <td colSpan={6} className="status status--muted">
                               No admin users found.
                             </td>
                           </tr>

@@ -697,20 +697,6 @@ function BookingPage() {
               <p className="hero__tagline">
                 Real-time turf availability across Karachi, Lahore, Islamabad, and Rawalpindi
               </p>
-              <div className="hero__cta">
-                <button
-                  type="button"
-                  className="primary-cta-button"
-                  onClick={() => {
-                    document.querySelector('.ground-list')?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start'
-                    });
-                  }}
-                >
-                  Book a Slot
-                </button>
-              </div>
             </div>
 
             <div className="hero__stats">
@@ -842,10 +828,36 @@ function BookingPage() {
 
           {selectedGround ? (
             <>
+              <div className="booking-panel__section booking-panel__section--submit">
+                <form className="booking-form booking-form--sporty" onSubmit={handleSubmit}>
+                  <div className="button-with-tooltip">
+                    <button
+                      className="primary-button primary-button--sporty"
+                      type="submit"
+                      disabled={isSubmitting || !selectedSlot}
+                    >
+                      {isSubmitting ? 'Booking...' : 'Book Now'}
+                    </button>
+                    {!selectedSlot && (
+                      <span className="custom-tooltip">Select a slot</span>
+                    )}
+                  </div>
+                </form>
+              </div>
+
               <div className="booking-panel__section booking-panel__section--card">
                 <div className="booking-panel__ground booking-panel__ground--sporty">
-                  <h3>{selectedGround.name}</h3>
-                  <p>{selectedGround.city} · {selectedGround.location}</p>
+                  {selectedGround.imageUrl && (
+                    <img
+                      src={selectedGround.imageUrl}
+                      alt={selectedGround.name}
+                      className="booking-panel__ground-image"
+                    />
+                  )}
+                  <div className="booking-panel__ground-info">
+                    <h3>{selectedGround.name}</h3>
+                    <p>{selectedGround.city} · {selectedGround.location}</p>
+                  </div>
                 </div>
               </div>
 
@@ -898,18 +910,6 @@ function BookingPage() {
                   </div>
                   {slotError && <p className="form-error">{slotError}</p>}
                 </div>
-              </div>
-
-              <div className="booking-panel__section booking-panel__section--submit">
-                <form className="booking-form booking-form--sporty" onSubmit={handleSubmit}>
-                  <button
-                    className="primary-button primary-button--sporty"
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Booking...' : 'Book Now'}
-                  </button>
-                </form>
               </div>
 
               {!user && (

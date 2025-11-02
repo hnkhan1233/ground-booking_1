@@ -282,48 +282,48 @@
 
 .hero-stat {
   position: relative;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  padding: 0.65rem 1rem;
+  background: rgba(12, 18, 38, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.2rem;
   min-height: auto;
   flex: 1;
-  min-width: 140px;
-  box-shadow: var(--shadow-soft);
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  backdrop-filter: var(--blur-strength);
+  backdrop-filter: blur(8px);
 }
 
 .hero-stat::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 85% 15%, rgba(168, 85, 247, 0.22), transparent 60%);
+  background: radial-gradient(circle at 85% 15%, rgba(168, 85, 247, 0.08), transparent 60%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .hero-stat:hover::after {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 .hero-stat__label {
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  color: rgba(203, 213, 225, 0.8);
-  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: rgba(203, 213, 225, 0.6);
+  font-weight: 500;
   text-transform: uppercase;
 }
 
 .hero-stat__value {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--color-accent-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(168, 85, 247, 0.9);
   line-height: 1.05;
-  text-shadow: 0 14px 32px rgba(168, 85, 247, 0.4);
+  text-shadow: none;
 }
 
 .ghost-button {
@@ -688,7 +688,7 @@
   border-radius: 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 0.5rem;
 }
 
 .booking-panel--sporty {
@@ -696,22 +696,22 @@
   border: 2px solid rgba(103, 232, 249, 0.25);
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5),
               0 0 0 1px rgba(168, 85, 247, 0.15) inset;
-  padding: 1.2rem;
+  padding: 0.55rem;
   backdrop-filter: var(--blur-strength);
   position: sticky;
   top: 2rem;
-  border-radius: 1.2rem;
+  border-radius: 0.85rem;
 }
 
 .booking-panel__section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.2rem;
 }
 
 .booking-panel__section--card {
-  padding: 0.85rem 1rem;
-  border-radius: 0.8rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.5rem;
   background: rgba(8, 13, 32, 0.7);
   border: 1px solid rgba(129, 140, 248, 0.25);
   box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.12);
@@ -719,7 +719,7 @@
 }
 
 .booking-panel__section--slots {
-  gap: 0.8rem;
+  gap: 0.4rem;
 }
 
 .booking-panel__section--submit,
@@ -728,29 +728,29 @@
 }
 
 .booking-panel__section--auth {
-  gap: 0.5rem;
+  gap: 0.2rem;
 }
 
 .booking-panel__header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.8rem;
-  padding-bottom: 0.8rem;
-  margin-bottom: 0.8rem;
+  gap: 0.4rem;
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.3rem;
   border-bottom: 1px solid rgba(129, 140, 248, 0.25);
   box-shadow: 0 1px 0 rgba(34, 211, 238, 0.1);
 }
 
 .booking-panel--sporty h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 0.85rem;
   font-weight: 700;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(34, 211, 238, 0.95));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .booking-panel__ground--sporty {
@@ -759,19 +759,37 @@
   padding: 0;
   border: none;
   color: #e2e8f0;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.booking-panel__ground-image {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  flex-shrink: 0;
+}
+
+.booking-panel__ground-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .booking-panel__ground--sporty h3 {
-  margin: 0 0 0.25rem;
-  font-size: 1rem;
+  margin: 0 0 0.05rem;
+  font-size: 0.825rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .booking-panel__ground--sporty p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.675rem;
   color: rgba(203, 213, 225, 0.75);
+  line-height: 1.2;
 }
 
 .form-field {
@@ -1964,9 +1982,47 @@
 }
 
 .primary-button:disabled {
-  opacity: 0.7;
-  cursor: wait;
-  filter: grayscale(0.3);
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+  background: rgba(100, 100, 120, 0.4) !important;
+}
+
+.button-with-tooltip {
+  position: relative;
+  width: 100%;
+}
+
+.custom-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(168, 85, 247, 0.95);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.custom-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(168, 85, 247, 0.95);
+}
+
+.button-with-tooltip:hover .custom-tooltip {
+  opacity: 1;
 }
 
 .status {

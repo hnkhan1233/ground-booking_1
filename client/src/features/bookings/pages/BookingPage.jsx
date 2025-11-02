@@ -43,7 +43,7 @@ function BookingPage() {
   const [slotError, setSlotError] = useState('');
   const [serverMessage, setServerMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState('');
+  const [selectedSlots, setSelectedSlots] = useState([]);
   const [profile, setProfile] = useState(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -205,6 +205,7 @@ function BookingPage() {
           id: ground.id,
           name: ground.name,
           city: ground.city,
+          category: ground.category,
           location: ground.location,
           pricePerHour: Number(ground.price_per_hour),
           description: ground.description || '',
@@ -233,10 +234,10 @@ function BookingPage() {
           setCityFilter(cityData[0].city);
           const initialGround = normalized.find((ground) => ground.city === cityData[0].city) || normalized[0];
           setSelectedGroundId(initialGround?.id ?? null);
-          setSelectedSlot('');
+          setSelectedSlots([]);
         } else if (normalized.length > 0) {
           setSelectedGroundId(normalized[0].id);
-          setSelectedSlot('');
+          setSelectedSlots([]);
         }
       } catch (error) {
         console.error(error);
@@ -255,13 +256,13 @@ function BookingPage() {
   useEffect(() => {
     if (!filteredGrounds.length) {
       setSelectedGroundId(null);
-      setSelectedSlot('');
+      setSelectedSlots([]);
       return;
     }
 
     if (!filteredGrounds.some((ground) => ground.id === selectedGroundId)) {
       setSelectedGroundId(filteredGrounds[0].id);
-      setSelectedSlot('');
+      setSelectedSlots([]);
     }
   }, [filteredGrounds, selectedGroundId]);
 
@@ -327,8 +328,75 @@ function BookingPage() {
   }, [selectedGroundId, selectedDate]);
 
   const handleSlotSelect = (slot) => {
-    setSelectedSlot(slot);
+    // Toggle slot in/out of array
+    setSelectedSlots((prev) => {
+      if (prev.includes(slot)) {
+        return prev.filter((s) => s !== slot);
+      } else {
+        return [...prev, slot].sort(); // Sort to maintain order
+      }
+    });
     setSlotError('');
+  };
+
+  // Group consecutive slots into ranges for display
+  const getSlotRanges = () => {
+    if (selectedSlots.length === 0) return [];
+
+    const ranges = [];
+    let rangeStart = selectedSlots[0];
+    let rangeEnd = selectedSlots[0];
+
+    for (let i = 1; i < selectedSlots.length; i++) {
+      const currentSlot = selectedSlots[i];
+      const prevSlot = selectedSlots[i - 1];
+
+      // Check if slots are consecutive (60 minutes apart)
+      const [prevHour, prevMin] = prevSlot.split(':').map(Number);
+      const [currHour, currMin] = currentSlot.split(':').map(Number);
+      const prevTotalMin = prevHour * 60 + prevMin;
+      const currTotalMin = currHour * 60 + currMin;
+
+      if (currTotalMin - prevTotalMin === 60) {
+        // Consecutive slot, extend range
+        rangeEnd = currentSlot;
+      } else {
+        // Gap found, save current range and start new one
+        ranges.push({ start: rangeStart, end: rangeEnd });
+        rangeStart = currentSlot;
+        rangeEnd = currentSlot;
+      }
+    }
+
+    // Add the last range
+    ranges.push({ start: rangeStart, end: rangeEnd });
+    return ranges;
+  };
+
+  // Get the position of a slot in a range (start, middle, end, or alone)
+  const getSlotPosition = (slot) => {
+    const ranges = getSlotRanges();
+
+    for (const range of ranges) {
+      if (range.start === slot && range.end === slot) return 'alone';
+      if (range.start === slot) return 'range-start';
+      if (range.end === slot) return 'range-end';
+
+      // Check if it's in the middle
+      const [startHour, startMin] = range.start.split(':').map(Number);
+      const [endHour, endMin] = range.end.split(':').map(Number);
+      const [slotHour, slotMin] = slot.split(':').map(Number);
+
+      const startTotalMin = startHour * 60 + startMin;
+      const endTotalMin = endHour * 60 + endMin;
+      const slotTotalMin = slotHour * 60 + slotMin;
+
+      if (slotTotalMin > startTotalMin && slotTotalMin < endTotalMin) {
+        return 'range-middle';
+      }
+    }
+
+    return null;
   };
 
   const openAuthModal = (mode = 'signin') => {
@@ -520,7 +588,7 @@ function BookingPage() {
       setProfileError('');
       setProfileDraft({ name: '', phone: '' });
 
-      if (pendingBooking && selectedSlot) {
+      if (pendingBooking && selectedSlots.length > 0) {
         await performBooking();
       }
     } catch (error) {
@@ -545,8 +613,8 @@ function BookingPage() {
   }, [user]);
 
   const performBooking = async () => {
-    if (!selectedSlot) {
-      setSlotError('Please choose a time slot before booking.');
+    if (selectedSlots.length === 0) {
+      setSlotError('Please select at least one time slot before booking.');
       setPendingBooking(false);
       return;
     }
@@ -566,7 +634,7 @@ function BookingPage() {
         body: JSON.stringify({
           groundId: selectedGroundId,
           date: selectedDate,
-          slot: selectedSlot,
+          slots: selectedSlots,
         }),
       });
 
@@ -575,16 +643,17 @@ function BookingPage() {
         throw new Error(error.error || 'Booking failed. Please try again.');
       }
 
-      const booking = await response.json();
+      const bookings = await response.json();
+      const slotCount = Array.isArray(bookings) ? bookings.length : 1;
       setServerMessage({
         type: 'success',
-        text: `Great! Your booking #${booking.id} is confirmed for ${booking.date} at ${booking.slot}.`,
+        text: `Great! Your booking${slotCount > 1 ? 's are' : ' is'} confirmed for ${selectedDate}. ${slotCount} slot${slotCount > 1 ? 's' : ''} booked.`,
       });
-      setSelectedSlot('');
+      setSelectedSlots([]);
       setPendingBooking(false);
       setAvailability((current) =>
         current.map((slot) =>
-          slot.slot === booking.slot ? { ...slot, available: false } : slot
+          selectedSlots.includes(slot.slot) ? { ...slot, available: false } : slot
         )
       );
     } catch (error) {
@@ -620,8 +689,8 @@ function BookingPage() {
       return;
     }
 
-    if (!selectedSlot) {
-      setSlotError('Please choose a time slot before booking.');
+    if (selectedSlots.length === 0) {
+      setSlotError('Please select at least one time slot before booking.');
       return;
     }
 
@@ -736,7 +805,7 @@ function BookingPage() {
                       setCityFilter(city);
                       const firstGround = grounds.find((ground) => ground.city === city);
                       setSelectedGroundId(firstGround?.id ?? null);
-                      setSelectedSlot('');
+                      setSelectedSlots([]);
                     }}
                   >
                     {city}
@@ -760,7 +829,10 @@ function BookingPage() {
               </button>
               {['Football', 'Cricket', 'Padel', 'Futsal', 'Basketball', 'Tennis'].map((cat) => {
                 const isActive = cat === categoryFilter;
-                const count = grounds.filter(g => g.category === cat).length;
+                const count = grounds.filter(g => {
+                  const matchesCity = !cityFilter || g.city === cityFilter;
+                  return matchesCity && g.category === cat;
+                }).length;
                 if (count === 0) return null;
                 return (
                   <button
@@ -788,8 +860,8 @@ function BookingPage() {
               {filteredGrounds.map((ground) => {
                 const isActive = ground.id === selectedGroundId;
                 return (
-                  <button
-                    type="button"
+                  <Link
+                    to={`/ground/${ground.id}`}
                     key={ground.id}
                     className={`ground-card ${isActive ? 'ground-card--active' : ''}`}
                     onClick={() => setSelectedGroundId(ground.id)}
@@ -803,20 +875,12 @@ function BookingPage() {
                       <div className="ground-card__pill">{ground.city}</div>
                       <h3>{ground.name}</h3>
                       <p className="ground-card__meta">{ground.location}</p>
-                      <p className="ground-card__description">{ground.description}</p>
                       <p className="ground-card__price">
                         PKR {ground.pricePerHour.toLocaleString()}
                         <span> / hour</span>
                       </p>
-                      <Link
-                        to={`/ground/${ground.id}`}
-                        className="ground-card__details-link"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        View details →
-                      </Link>
                     </div>
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -836,12 +900,14 @@ function BookingPage() {
                     <button
                       className="primary-button primary-button--sporty"
                       type="submit"
-                      disabled={isSubmitting || !selectedSlot}
+                      disabled={isSubmitting || selectedSlots.length === 0}
                     >
-                      {isSubmitting ? 'Booking...' : 'Book Now'}
+                      {isSubmitting ? 'Booking...' : selectedSlots.length > 0
+                        ? `Book Now (${getSlotRanges().map(r => r.start === r.end ? r.start : `${r.start}-${r.end}`).join(', ')})`
+                        : 'Book Now'}
                     </button>
-                    {!selectedSlot && (
-                      <span className="custom-tooltip">Select a slot</span>
+                    {selectedSlots.length === 0 && (
+                      <span className="custom-tooltip">Select at least one slot</span>
                     )}
                   </div>
                 </form>
@@ -877,7 +943,7 @@ function BookingPage() {
                     value={selectedDate}
                     onChange={(event) => {
                       setSelectedDate(event.target.value);
-                      setSelectedSlot('');
+                      setSelectedSlots([]);
                     }}
                   />
                 </label>
@@ -892,12 +958,15 @@ function BookingPage() {
 
                   <div className="availability__grid availability__grid--sporty">
                     {availability.map((item) => {
-                      const isSelected = selectedSlot === item.slot;
+                      const isSelected = selectedSlots.includes(item.slot);
+                      const slotPosition = isSelected ? getSlotPosition(item.slot) : null;
                       return (
                         <button
                           type="button"
                           key={item.slot}
-                          className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''}`}
+                          className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''} ${
+                            slotPosition ? `slot--${slotPosition}` : ''
+                          }`}
                           disabled={!item.available || isLoadingAvailability}
                           onClick={() => handleSlotSelect(item.slot)}
                         >
@@ -945,6 +1014,9 @@ function BookingPage() {
         <div>
           <p>Need to cancel? Share your booking ID with the facility manager for a quick release.</p>
           <p className="footer__credit">Built for competitive squads and weekend warriors across Pakistan.</p>
+          <p className="footer__links">
+            <Link to="/about" className="footer__link">About Us</Link>
+          </p>
         </div>
       </footer>
 

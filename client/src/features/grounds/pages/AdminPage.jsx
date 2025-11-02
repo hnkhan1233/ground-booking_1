@@ -1898,6 +1898,16 @@ function AdminPage() {
                                           className={`admin-media-thumb${isCover ? ' admin-media-thumb--active' : ''}`}
                                         >
                                           <img src={image.preview} alt={`Gallery ${index + 1}`} />
+                                          <button
+                                            type="button"
+                                            className="admin-media-thumb__delete"
+                                            onClick={() => handleGalleryDelete(ground.id, image.id)}
+                                            disabled={isGalleryBusy(ground.id)}
+                                            aria-label="Remove image"
+                                            title="Remove image"
+                                          >
+                                            ×
+                                          </button>
                                           <div className="admin-media-thumb__overlay">
                                             <span className="admin-media-thumb__order">{index + 1}</span>
                                             <div className="admin-media-thumb__actions">
@@ -1932,14 +1942,6 @@ function AdminPage() {
                                                   &gt;
                                                 </button>
                                               </div>
-                                              <button
-                                                type="button"
-                                                className="chip-button chip-button--danger"
-                                                onClick={() => handleGalleryDelete(ground.id, image.id)}
-                                                disabled={isGalleryBusy(ground.id)}
-                                              >
-                                                Remove
-                                              </button>
                                             </div>
                                           </div>
                                         </div>

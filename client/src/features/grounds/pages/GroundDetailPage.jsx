@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext.jsx';
 import { API_BASE_URL } from '../../../config.js';
 import { getFeatureIcon, getCategoryColor } from '../../../utils/featureIcons.js';
+import Lightbox from '../../../components/Lightbox.jsx';
 import '../../../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
@@ -50,7 +51,7 @@ function GroundDetailPage() {
 
   // Booking state
   const [selectedDate, setSelectedDate] = useState(initialDate());
-  const [selectedSlot, setSelectedSlot] = useState('');
+  const [selectedSlots, setSelectedSlots] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -140,14 +141,70 @@ function GroundDetailPage() {
     }
   };
 
+  const handleSlotSelect = (slot) => {
+    setSelectedSlots((prev) => {
+      const isSelected = prev.includes(slot);
+      if (isSelected) {
+        return prev.filter((s) => s !== slot);
+      } else {
+        return [...prev, slot].sort();
+      }
+    });
+    setBookingError('');
+  };
+
+  const getSlotRanges = () => {
+    if (selectedSlots.length === 0) return [];
+
+    const sorted = [...selectedSlots].sort();
+    const ranges = [];
+    let currentRange = { start: sorted[0], end: sorted[0] };
+
+    for (let i = 1; i < sorted.length; i++) {
+      const currentTime = sorted[i];
+      const prevTime = sorted[i - 1];
+
+      const [prevHour, prevMinute] = prevTime.split(':').map(Number);
+      const [currentHour, currentMinute] = currentTime.split(':').map(Number);
+
+      const prevTotalMinutes = prevHour * 60 + prevMinute;
+      const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+      if (currentTotalMinutes - prevTotalMinutes === 60) {
+        currentRange.end = currentTime;
+      } else {
+        ranges.push(currentRange);
+        currentRange = { start: currentTime, end: currentTime };
+      }
+    }
+
+    ranges.push(currentRange);
+    return ranges;
+  };
+
+  const getSlotPosition = (slot) => {
+    const ranges = getSlotRanges();
+
+    for (const range of ranges) {
+      if (range.start === range.end && range.start === slot) {
+        return 'alone';
+      }
+      if (range.start === slot) return 'range-start';
+      if (range.end === slot) return 'range-end';
+      if (slot > range.start && slot < range.end) return 'range-middle';
+    }
+
+    return null;
+  };
+
   const handleBooking = async () => {
     if (!user) {
       showAuthModal();
       return;
     }
 
-    if (!selectedSlot) {
-      setBookingError('Please select a time slot');
+    if (selectedSlots.length === 0) {
+      setBookingError('Please select at least one time slot');
       return;
     }
 
@@ -165,7 +222,7 @@ function GroundDetailPage() {
         body: JSON.stringify({
           groundId: ground.id,
           date: selectedDate,
-          slot: selectedSlot,
+          slots: selectedSlots,
         }),
       });
 
@@ -181,7 +238,7 @@ function GroundDetailPage() {
       }
 
       setBookingSuccess(true);
-      setSelectedSlot('');
+      setSelectedSlots([]);
       loadAvailability();
 
       setTimeout(() => setBookingSuccess(false), 5000);
@@ -328,7 +385,7 @@ function GroundDetailPage() {
 
   const closeLightbox = () => setLightboxIndex(null);
 
-  const stepLightbox = (direction) => {
+  const navigateLightbox = (direction) => {
     setLightboxIndex((prev) => {
       if (prev === null || media.length === 0) {
         return prev;
@@ -337,25 +394,6 @@ function GroundDetailPage() {
       return next;
     });
   };
-
-  useEffect(() => {
-    if (lightboxIndex === null) {
-      return undefined;
-    }
-
-    const handleKey = (event) => {
-      if (event.key === 'Escape') {
-        closeLightbox();
-      } else if (event.key === 'ArrowRight') {
-        stepLightbox(1);
-      } else if (event.key === 'ArrowLeft') {
-        stepLightbox(-1);
-      }
-    };
-
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [lightboxIndex, media.length]);
 
   const getFeaturesByCategory = (features) => {
     if (!Array.isArray(features)) {
@@ -588,15 +626,18 @@ function GroundDetailPage() {
                     <div key={category} className="feature-category" style={{ backgroundColor: getCategoryColor(category) }}>
                       <h3 className="feature-category__title">{category}</h3>
                       <ul className="feature-list">
-                        {features.map((feature) => (
-                          <li key={feature.id} className="feature-item">
-                            <span className="feature-item__icon">{getFeatureIcon(feature.feature_name)}</span>
-                            <span className="feature-item__name">{feature.feature_name}</span>
-                            {feature.feature_value && (
-                              <span className="feature-item__value">: {feature.feature_value}</span>
-                            )}
-                          </li>
-                        ))}
+                        {features.map((feature) => {
+                          const IconComponent = getFeatureIcon(feature.feature_name);
+                          return (
+                            <li key={feature.id} className="feature-item">
+                              <IconComponent className="feature-item__icon" />
+                              <span className="feature-item__name">{feature.feature_name}</span>
+                              {feature.feature_value && (
+                                <span className="feature-item__value">: {feature.feature_value}</span>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   ))}
@@ -632,7 +673,7 @@ function GroundDetailPage() {
                       value={selectedDate}
                       onChange={(event) => {
                         setSelectedDate(event.target.value);
-                        setSelectedSlot('');
+                        setSelectedSlots([]);
                         setBookingError('');
                       }}
                       className="booking-input"
@@ -645,23 +686,24 @@ function GroundDetailPage() {
                       {isLoadingAvailability && <span className="booking-slots__loading">Loading...</span>}
                     </div>
 
-                    <div className="booking-slots__grid">
+                    <div className="availability__grid availability__grid--sporty">
                       {availability.map((item) => {
-                        const isSelected = selectedSlot === item.slot;
+                        const isSelected = selectedSlots.includes(item.slot);
+                        const slotPosition = isSelected ? getSlotPosition(item.slot) : null;
                         return (
                           <button
                             type="button"
                             key={item.slot}
-                            disabled={!item.available}
-                            className={`booking-slot ${
-                              isSelected ? 'booking-slot--selected' : ''
-                            } ${!item.available ? 'booking-slot--disabled' : ''}`}
-                            onClick={() => {
-                              setSelectedSlot(item.slot);
-                              setBookingError('');
-                            }}
+                            className={`slot slot--sporty ${isSelected ? 'slot--selected' : ''} ${
+                              slotPosition ? `slot--${slotPosition}` : ''
+                            }`}
+                            disabled={!item.available || isLoadingAvailability}
+                            onClick={() => handleSlotSelect(item.slot)}
                           >
-                            {item.slot}
+                            <span>{item.slot}</span>
+                            <span className="slot__status">
+                              {item.available ? 'Open' : 'Booked'}
+                            </span>
                           </button>
                         );
                       })}
@@ -677,9 +719,9 @@ function GroundDetailPage() {
                       type="button"
                       className="booking-button"
                       onClick={handleBooking}
-                      disabled={!selectedSlot || isSubmitting}
+                      disabled={selectedSlots.length === 0 || isSubmitting}
                     >
-                      {isSubmitting ? 'Confirming...' : 'Confirm booking'}
+                      {isSubmitting ? 'Confirming...' : `Book Now ${selectedSlots.length > 0 ? `(${getSlotRanges().map(r => r.start === r.end ? r.start : `${r.start}-${r.end}`).join(', ')})` : ''}`}
                     </button>
                   ) : (
                     <button
@@ -697,49 +739,15 @@ function GroundDetailPage() {
         </div>
       </div>
 
-      {lightboxIndex !== null && media[lightboxIndex] && (
-        <>
-          <div className="detail-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
-            <div className="detail-lightbox__inner" onClick={(e) => e.stopPropagation()}>
-              <img
-                src={media[lightboxIndex].url}
-                alt={`${ground.name} gallery ${lightboxIndex + 1}`}
-              />
-            </div>
-          </div>
-          <button
-            type="button"
-            className="detail-lightbox__close"
-            onClick={closeLightbox}
-            aria-label="Close gallery"
-          >
-            ✕
-          </button>
-          {media.length > 1 && (
-            <>
-              <button
-                type="button"
-                className="detail-lightbox__nav detail-lightbox__nav--prev"
-                onClick={() => stepLightbox(-1)}
-                aria-label="Previous image"
-              >
-                &lt;
-              </button>
-              <button
-                type="button"
-                className="detail-lightbox__nav detail-lightbox__nav--next"
-                onClick={() => stepLightbox(1)}
-                aria-label="Next image"
-              >
-                &gt;
-              </button>
-            </>
-          )}
-          <div className="detail-lightbox__counter">
-            {lightboxIndex + 1} / {media.length}
-          </div>
-        </>
-      )}
+      <Lightbox
+        images={media.map((img, idx) => ({
+          ...img,
+          alt: `${ground.name} gallery ${idx + 1}`
+        }))}
+        currentIndex={lightboxIndex}
+        onClose={closeLightbox}
+        onNavigate={navigateLightbox}
+      />
     </div>
   );
 }

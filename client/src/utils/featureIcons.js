@@ -1,96 +1,132 @@
+// Import icons from react-icons
+import {
+  MdLightbulb,
+  MdLocalParking,
+  MdShower,
+  MdSpa,
+  MdLock,
+  MdWaterDrop,
+  MdSportsSoccer,
+  MdSportsBaseball,
+  MdSportsBasketball,
+  MdSportsTennis,
+  MdGrass,
+  MdLocationCity,
+  MdOutlineBalance,
+  MdPerson,
+  MdRestaurant,
+  MdLocalCafe,
+  MdLocalDrink,
+  MdAccessible,
+  MdNightlife,
+  MdTimer,
+  MdSecurity,
+  MdVideocam,
+  MdShield,
+  MdNature,
+  MdHome,
+  MdApartment,
+  MdEventSeat,
+  MdAcUnit,
+  MdOpacity,
+  MdShowChart,
+  MdSpeaker,
+  MdSportsFootball,
+  MdCheckCircle,
+} from 'react-icons/md';
+
 // Feature-to-icon mapping for ground features
-// Using Unicode symbols and professional icons
 export const featureIcons = {
   // Lighting features
-  'floodlights': '💡',
-  'flood lights': '💡',
-  'lights': '💡',
-  'lighting': '💡',
-  'night lights': '🌙',
-  'stadium lights': '💡',
+  'floodlights': MdLightbulb,
+  'flood lights': MdLightbulb,
+  'lights': MdLightbulb,
+  'lighting': MdLightbulb,
+  'night lights': MdNightlife,
+  'stadium lights': MdLightbulb,
 
   // Parking
-  'parking': '🅿️',
-  'parking available': '🅿️',
-  'free parking': '🅿️',
-  'covered parking': '🅿️',
+  'parking': MdLocalParking,
+  'parking available': MdLocalParking,
+  'free parking': MdLocalParking,
+  'covered parking': MdLocalParking,
 
   // Amenities
-  'washrooms': '🚿',
-  'restroom': '🚿',
-  'shower': '🚿',
-  'changing room': '👕',
-  'locker': '🔒',
-  'water': '💧',
-  'drinking water': '💧',
+  'washrooms': MdShower,
+  'restroom': MdShower,
+  'shower': MdShower,
+  'changing room': MdSpa,
+  'locker': MdLock,
+  'water': MdWaterDrop,
+  'drinking water': MdWaterDrop,
 
   // Sports equipment
-  'equipment': '⚽',
-  'ball': '⚽',
-  'balls provided': '⚽',
-  'cricket equipment': '🏏',
-  'football': '⚽',
-  'badminton': '🏸',
-  'tennis': '🎾',
+  'equipment': MdSportsSoccer,
+  'ball': MdSportsSoccer,
+  'balls provided': MdSportsSoccer,
+  'cricket equipment': MdSportsBaseball,
+  'football': MdSportsFootball,
+  'badminton': MdSportsTennis,
+  'tennis': MdSportsTennis,
 
   // Surface type
-  'grass': '🌱',
-  'artificial grass': '🌱',
-  'turf': '🌱',
-  'concrete': '⬜',
-  'asphalt': '⬜',
-  'clay': '🟫',
-  'wooden': '🟫',
+  'grass': MdGrass,
+  'artificial grass': MdGrass,
+  'turf': MdGrass,
+  'concrete': MdLocationCity,
+  'asphalt': MdLocationCity,
+  'clay': MdOutlineBalance,
+  'wooden': MdOutlineBalance,
 
   // Services
-  'coaching': '👨‍🏫',
-  'coach available': '👨‍🏫',
-  'trainer': '👨‍🏫',
-  'food': '🍔',
-  'cafe': '☕',
-  'canteen': '🍔',
-  'beverages': '🥤',
-  'drinks': '🥤',
+  'coaching': MdPerson,
+  'coach available': MdPerson,
+  'trainer': MdPerson,
+  'food': MdRestaurant,
+  'cafe': MdLocalCafe,
+  'canteen': MdRestaurant,
+  'beverages': MdLocalDrink,
+  'drinks': MdLocalDrink,
 
   // Access
-  'wheelchair accessible': '♿',
-  'accessible': '♿',
-  'disabled access': '♿',
-  'night access': '🌙',
-  '24/7': '⏰',
-  'open 24 hours': '⏰',
+  'wheelchair accessible': MdAccessible,
+  'accessible': MdAccessible,
+  'disabled access': MdAccessible,
+  'night access': MdNightlife,
+  '24/7': MdTimer,
+  'open 24 hours': MdTimer,
 
   // Security
-  'security': '🔒',
-  'cctv': '📹',
-  'camera': '📹',
-  'surveillance': '📹',
-  'guards': '👮',
-  'safe': '🔒',
+  'security': MdSecurity,
+  'cctv': MdVideocam,
+  'camera': MdVideocam,
+  'surveillance': MdVideocam,
+  'guards': MdShield,
+  'safe': MdLock,
 
   // Venue type
-  'open': '🌳',
-  'outdoor': '🌳',
-  'uncovered': '🌳',
-  'indoor': '🏠',
-  'covered': '🏛️',
-  'enclosed': '🏛️',
+  'open': MdNature,
+  'outdoor': MdNature,
+  'uncovered': MdNature,
+  'indoor': MdHome,
+  'covered': MdApartment,
+  'enclosed': MdApartment,
 
   // Other
-  'spectator seating': '🪑',
-  'seating': '🪑',
-  'air conditioned': '❄️',
-  'ac': '❄️',
-  'ventilation': '💨',
-  'scoreboard': '📊',
-  'sound system': '🔊',
-  'net': '🥅',
-  'goals': '⚽',
+  'spectator seating': MdEventSeat,
+  'seating': MdEventSeat,
+  'air conditioned': MdAcUnit,
+  'ac': MdAcUnit,
+  'ventilation': MdOpacity,
+  'scoreboard': MdShowChart,
+  'sound system': MdSpeaker,
+  'net': MdSportsSoccer,
+  'goals': MdSportsSoccer,
 };
 
-// Get icon for a feature
+// Get icon component for a feature
 export function getFeatureIcon(featureName) {
-  if (!featureName) return '✓';
+  if (!featureName) return MdCheckCircle;
 
   const normalized = featureName.toLowerCase().trim();
 
@@ -107,7 +143,7 @@ export function getFeatureIcon(featureName) {
   }
 
   // Default checkmark
-  return '✓';
+  return MdCheckCircle;
 }
 
 // Get background color for feature category

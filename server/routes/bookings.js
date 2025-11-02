@@ -29,11 +29,17 @@ router.get('/user/history', authenticate, (req, res) => {
 
 router.post('/', authenticate, (req, res) => {
   const db = getDb();
-  const { groundId, date, slot } = req.body;
+  const { groundId, date, slots } = req.body;
 
-  if (!groundId || !date || !slot) {
+  if (!groundId || !date || !slots) {
     return res.status(400).json({
-      error: 'groundId, date, and slot are required.',
+      error: 'groundId, date, and slots are required.',
+    });
+  }
+
+  if (!Array.isArray(slots) || slots.length === 0) {
+    return res.status(400).json({
+      error: 'slots must be a non-empty array.',
     });
   }
 
@@ -41,8 +47,11 @@ router.post('/', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
   }
 
-  if (!SLOT_TIMES.includes(slot)) {
-    return res.status(400).json({ error: 'Invalid slot selected.' });
+  // Validate all slots
+  for (const slot of slots) {
+    if (!SLOT_TIMES.includes(slot)) {
+      return res.status(400).json({ error: `Invalid slot selected: ${slot}` });
+    }
   }
 
   // Check if the booking is for a past time (Pakistani timezone - PKT = UTC+5)
@@ -62,12 +71,14 @@ router.post('/', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Cannot book dates in the past.' });
   }
 
-  // For today, check if the slot time has passed
+  // For today, check if any slot time has passed
   if (date === todayPKT) {
-    const [slotHour, slotMinute] = slot.split(':').map(Number);
+    for (const slot of slots) {
+      const [slotHour, slotMinute] = slot.split(':').map(Number);
 
-    if (slotHour < pktHours || (slotHour === pktHours && slotMinute <= pktMinutes)) {
-      return res.status(400).json({ error: 'Cannot book a time slot that has already passed.' });
+      if (slotHour < pktHours || (slotHour === pktHours && slotMinute <= pktMinutes)) {
+        return res.status(400).json({ error: `Cannot book time slot ${slot} that has already passed.` });
+      }
     }
   }
 
@@ -110,33 +121,35 @@ router.post('/', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Ground is closed on this day.' });
   }
 
-  // Check if the requested slot is within operating hours
-  const [slotHour, slotMinute] = slot.split(':').map(Number);
+  // Check if all requested slots are within operating hours and not already booked
   const [startHour, startMinute] = operatingHours.start_time.split(':').map(Number);
   const [endHour, endMinute] = operatingHours.end_time.split(':').map(Number);
-
-  const slotTimeInMinutes = slotHour * 60 + slotMinute;
   const startTimeInMinutes = startHour * 60 + startMinute;
   const endTimeInMinutes = endHour * 60 + endMinute;
 
-  if (slotTimeInMinutes < startTimeInMinutes || slotTimeInMinutes >= endTimeInMinutes) {
-    return res.status(400).json({
-      error: `Ground is only available from ${operatingHours.start_time} to ${operatingHours.end_time} on this day.`,
-    });
-  }
+  for (const slot of slots) {
+    const [slotHour, slotMinute] = slot.split(':').map(Number);
+    const slotTimeInMinutes = slotHour * 60 + slotMinute;
 
-  const existingBooking = db
-    .prepare(
-      `SELECT id
-       FROM bookings
-       WHERE ground_id = ? AND date = ? AND slot = ? AND status = 'CONFIRMED'`
-    )
-    .get(groundId, date, slot);
+    if (slotTimeInMinutes < startTimeInMinutes || slotTimeInMinutes >= endTimeInMinutes) {
+      return res.status(400).json({
+        error: `Slot ${slot} is outside operating hours (${operatingHours.start_time} - ${operatingHours.end_time}).`,
+      });
+    }
 
-  if (existingBooking) {
-    return res.status(409).json({
-      error: 'This slot is already booked for the selected date.',
-    });
+    const existingBooking = db
+      .prepare(
+        `SELECT id
+         FROM bookings
+         WHERE ground_id = ? AND date = ? AND slot = ? AND status = 'CONFIRMED'`
+      )
+      .get(groundId, date, slot);
+
+    if (existingBooking) {
+      return res.status(409).json({
+        error: `Slot ${slot} is already booked for the selected date.`,
+      });
+    }
   }
 
   const statement = db.prepare(
@@ -144,43 +157,50 @@ router.post('/', authenticate, (req, res) => {
      VALUES (?, ?, ?, ?, ?, ?, ?)`
   );
 
-  const info = statement.run(
-    groundId,
-    date,
-    slot,
-    profile.name,
-    profile.phone,
-    req.user?.uid || null,
-    ground.price_per_hour
-  );
+  const createdBookings = [];
 
-  // Send email notification to admins
-  sendBookingNotificationEmail({
-    bookingId: info.lastInsertRowid,
-    groundId,
-    groundName: ground.name,
-    location: ground.location,
-    city: ground.city,
-    date,
-    slot,
-    customerName: profile.name,
-    customerPhone: profile.phone,
-    priceAtBooking: ground.price_per_hour,
-  }).catch((err) => {
-    // Log error but don't fail the booking
-    console.error('Failed to send booking notification email:', err);
-  });
+  // Create a booking for each slot
+  for (const slot of slots) {
+    const info = statement.run(
+      groundId,
+      date,
+      slot,
+      profile.name,
+      profile.phone,
+      req.user?.uid || null,
+      ground.price_per_hour
+    );
 
-  res.status(201).json({
-    id: info.lastInsertRowid,
-    groundId,
-    date,
-    slot,
-    customerName: profile.name,
-    customerPhone: profile.phone,
-    status: 'CONFIRMED',
-    userUid: req.user?.uid || null,
-  });
+    createdBookings.push({
+      id: info.lastInsertRowid,
+      groundId,
+      date,
+      slot,
+      customerName: profile.name,
+      customerPhone: profile.phone,
+      status: 'CONFIRMED',
+      userUid: req.user?.uid || null,
+    });
+
+    // Send email notification to admins for each slot
+    sendBookingNotificationEmail({
+      bookingId: info.lastInsertRowid,
+      groundId,
+      groundName: ground.name,
+      location: ground.location,
+      city: ground.city,
+      date,
+      slot,
+      customerName: profile.name,
+      customerPhone: profile.phone,
+      priceAtBooking: ground.price_per_hour,
+    }).catch((err) => {
+      // Log error but don't fail the booking
+      console.error('Failed to send booking notification email:', err);
+    });
+  }
+
+  res.status(201).json(createdBookings);
 });
 
 router.delete('/:bookingId', authenticate, (req, res) => {

@@ -698,7 +698,15 @@ function GroundDetailPage() {
       </div>
 
       {lightboxIndex !== null && media[lightboxIndex] && (
-        <div className="detail-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
+        <>
+          <div className="detail-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
+            <div className="detail-lightbox__inner" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={media[lightboxIndex].url}
+                alt={`${ground.name} gallery ${lightboxIndex + 1}`}
+              />
+            </div>
+          </div>
           <button
             type="button"
             className="detail-lightbox__close"
@@ -727,16 +735,10 @@ function GroundDetailPage() {
               </button>
             </>
           )}
-          <div className="detail-lightbox__inner" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={media[lightboxIndex].url}
-              alt={`${ground.name} gallery ${lightboxIndex + 1}`}
-            />
-          </div>
           <div className="detail-lightbox__counter">
             {lightboxIndex + 1} / {media.length}
           </div>
-        </div>
+        </>
       )}
     </div>
   );

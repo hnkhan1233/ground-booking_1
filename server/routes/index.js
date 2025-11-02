@@ -41,86 +41,74 @@ router.post('/migrate-ground-data', (req, res) => {
     updateCategories.run('Football', 3);
     updateCategories.run('Futsal', 4);
 
-    // Add images if they don't exist
-    const images = db.prepare('SELECT COUNT(*) as count FROM ground_images').get();
+    // Add images for grounds that don't have them
+    const insertImage = db.prepare(
+      'INSERT INTO ground_images (ground_id, image_url, display_order, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)'
+    );
 
-    if (images.count === 0) {
-      const insertImage = db.prepare(
-        'INSERT INTO ground_images (ground_id, image_url, display_order, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)'
-      );
+    const groundImages = [
+      { ground_id: 1, image_url: 'https://images.pexels.com/photos/46798/pexels-photo-46798.jpeg', display_order: 0 },
+      { ground_id: 1, image_url: 'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg', display_order: 1 },
+      { ground_id: 2, image_url: 'https://images.pexels.com/photos/1380613/pexels-photo-1380613.jpeg', display_order: 0 },
+      { ground_id: 2, image_url: 'https://images.pexels.com/photos/159937/cricket-field-cricket-sport-sports-159937.jpeg', display_order: 1 },
+      { ground_id: 3, image_url: 'https://images.pexels.com/photos/3991878/pexels-photo-3991878.jpeg', display_order: 0 },
+      { ground_id: 3, image_url: 'https://images.pexels.com/photos/209977/football-pitch-football-field-sports-209977.jpeg', display_order: 1 },
+      { ground_id: 4, image_url: 'https://images.pexels.com/photos/1345834/pexels-photo-1345834.jpeg', display_order: 0 },
+      { ground_id: 4, image_url: 'https://images.pexels.com/photos/47730/the-ball-sports-football-grass-47730.jpeg', display_order: 1 },
+    ];
 
-      const groundImages = [
-        { ground_id: 1, image_url: 'https://images.pexels.com/photos/46798/pexels-photo-46798.jpeg', display_order: 0 },
-        { ground_id: 1, image_url: 'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg', display_order: 1 },
-        { ground_id: 2, image_url: 'https://images.pexels.com/photos/1380613/pexels-photo-1380613.jpeg', display_order: 0 },
-        { ground_id: 2, image_url: 'https://images.pexels.com/photos/159937/cricket-field-cricket-sport-sports-159937.jpeg', display_order: 1 },
-        { ground_id: 3, image_url: 'https://images.pexels.com/photos/3991878/pexels-photo-3991878.jpeg', display_order: 0 },
-        { ground_id: 3, image_url: 'https://images.pexels.com/photos/209977/football-pitch-football-field-sports-209977.jpeg', display_order: 1 },
-        { ground_id: 4, image_url: 'https://images.pexels.com/photos/1345834/pexels-photo-1345834.jpeg', display_order: 0 },
-        { ground_id: 4, image_url: 'https://images.pexels.com/photos/47730/the-ball-sports-football-grass-47730.jpeg', display_order: 1 },
-        { ground_id: 5, image_url: 'https://images.pexels.com/photos/4219/sport-competition-stadium-field.jpg', display_order: 0 },
-        { ground_id: 5, image_url: 'https://images.pexels.com/photos/159937/cricket-field-cricket-sport-sports-159937.jpeg', display_order: 1 },
-      ];
-
-      const transaction = db.transaction((imgs) => {
-        for (const img of imgs) {
-          insertImage.run(img.ground_id, img.image_url, img.display_order);
-        }
-      });
-
-      transaction(groundImages);
+    let imagesAdded = 0;
+    for (const img of groundImages) {
+      // Check if this ground already has this image
+      const existing = db.prepare('SELECT COUNT(*) as count FROM ground_images WHERE ground_id = ? AND image_url = ?').get(img.ground_id, img.image_url);
+      if (existing.count === 0) {
+        insertImage.run(img.ground_id, img.image_url, img.display_order);
+        imagesAdded++;
+      }
     }
 
-    // Add features if they don't exist
-    const features = db.prepare('SELECT COUNT(*) as count FROM ground_features').get();
+    // Add features for grounds that don't have them
+    const insertFeature = db.prepare(
+      'INSERT INTO ground_features (ground_id, feature_name, feature_value, category) VALUES (?, ?, ?, ?)'
+    );
 
-    if (features.count === 0) {
-      const insertFeature = db.prepare(
-        'INSERT INTO ground_features (ground_id, feature_name, feature_value, category) VALUES (?, ?, ?, ?)'
-      );
+    const groundFeatures = [
+      { ground_id: 1, feature_name: 'Flood Lights', category: 'Amenities' },
+      { ground_id: 1, feature_name: 'Parking', category: 'Amenities' },
+      { ground_id: 1, feature_name: 'Changing Rooms', category: 'Amenities' },
+      { ground_id: 1, feature_name: 'Washrooms', category: 'Amenities' },
+      { ground_id: 1, feature_name: 'Drinking Water', category: 'Amenities' },
+      { ground_id: 1, feature_name: 'Artificial Turf', category: 'Surface' },
+      { ground_id: 1, feature_name: 'Open', category: 'Venue Type' },
+      { ground_id: 2, feature_name: 'Flood Lights', category: 'Amenities' },
+      { ground_id: 2, feature_name: 'Parking', category: 'Amenities' },
+      { ground_id: 2, feature_name: 'Cafeteria', category: 'Amenities' },
+      { ground_id: 2, feature_name: 'Seating Area', category: 'Amenities' },
+      { ground_id: 2, feature_name: 'Drinking Water', category: 'Amenities' },
+      { ground_id: 2, feature_name: 'Natural Grass', category: 'Surface' },
+      { ground_id: 2, feature_name: 'Covered', category: 'Venue Type' },
+      { ground_id: 3, feature_name: 'Flood Lights', category: 'Amenities' },
+      { ground_id: 3, feature_name: 'Parking', category: 'Amenities' },
+      { ground_id: 3, feature_name: 'Changing Rooms', category: 'Amenities' },
+      { ground_id: 3, feature_name: 'Washrooms', category: 'Amenities' },
+      { ground_id: 3, feature_name: 'Seating Area', category: 'Amenities' },
+      { ground_id: 3, feature_name: 'Artificial Turf', category: 'Surface' },
+      { ground_id: 3, feature_name: 'Open', category: 'Venue Type' },
+      { ground_id: 4, feature_name: 'Flood Lights', category: 'Amenities' },
+      { ground_id: 4, feature_name: 'Parking', category: 'Amenities' },
+      { ground_id: 4, feature_name: 'Drinking Water', category: 'Amenities' },
+      { ground_id: 4, feature_name: 'Natural Grass', category: 'Surface' },
+      { ground_id: 4, feature_name: 'Open', category: 'Venue Type' },
+    ];
 
-      const groundFeatures = [
-        { ground_id: 1, feature_name: 'Flood Lights', category: 'Amenities' },
-        { ground_id: 1, feature_name: 'Parking', category: 'Amenities' },
-        { ground_id: 1, feature_name: 'Changing Rooms', category: 'Amenities' },
-        { ground_id: 1, feature_name: 'Washrooms', category: 'Amenities' },
-        { ground_id: 1, feature_name: 'Drinking Water', category: 'Amenities' },
-        { ground_id: 1, feature_name: 'Artificial Turf', category: 'Surface' },
-        { ground_id: 1, feature_name: 'Open', category: 'Venue Type' },
-        { ground_id: 2, feature_name: 'Flood Lights', category: 'Amenities' },
-        { ground_id: 2, feature_name: 'Parking', category: 'Amenities' },
-        { ground_id: 2, feature_name: 'Cafeteria', category: 'Amenities' },
-        { ground_id: 2, feature_name: 'Seating Area', category: 'Amenities' },
-        { ground_id: 2, feature_name: 'Drinking Water', category: 'Amenities' },
-        { ground_id: 2, feature_name: 'Natural Grass', category: 'Surface' },
-        { ground_id: 2, feature_name: 'Covered', category: 'Venue Type' },
-        { ground_id: 3, feature_name: 'Flood Lights', category: 'Amenities' },
-        { ground_id: 3, feature_name: 'Parking', category: 'Amenities' },
-        { ground_id: 3, feature_name: 'Changing Rooms', category: 'Amenities' },
-        { ground_id: 3, feature_name: 'Washrooms', category: 'Amenities' },
-        { ground_id: 3, feature_name: 'Seating Area', category: 'Amenities' },
-        { ground_id: 3, feature_name: 'Artificial Turf', category: 'Surface' },
-        { ground_id: 3, feature_name: 'Open', category: 'Venue Type' },
-        { ground_id: 4, feature_name: 'Flood Lights', category: 'Amenities' },
-        { ground_id: 4, feature_name: 'Parking', category: 'Amenities' },
-        { ground_id: 4, feature_name: 'Drinking Water', category: 'Amenities' },
-        { ground_id: 4, feature_name: 'Natural Grass', category: 'Surface' },
-        { ground_id: 4, feature_name: 'Open', category: 'Venue Type' },
-        { ground_id: 5, feature_name: 'Flood Lights', category: 'Amenities' },
-        { ground_id: 5, feature_name: 'Parking', category: 'Amenities' },
-        { ground_id: 5, feature_name: 'Cafeteria', category: 'Amenities' },
-        { ground_id: 5, feature_name: 'Drinking Water', category: 'Amenities' },
-        { ground_id: 5, feature_name: 'Concrete', category: 'Surface' },
-        { ground_id: 5, feature_name: 'Partially Covered', category: 'Venue Type' },
-      ];
-
-      const transaction = db.transaction((feats) => {
-        for (const feat of feats) {
-          insertFeature.run(feat.ground_id, feat.feature_name, null, feat.category);
-        }
-      });
-
-      transaction(groundFeatures);
+    let featuresAdded = 0;
+    for (const feat of groundFeatures) {
+      // Check if this ground already has this feature
+      const existing = db.prepare('SELECT COUNT(*) as count FROM ground_features WHERE ground_id = ? AND feature_name = ?').get(feat.ground_id, feat.feature_name);
+      if (existing.count === 0) {
+        insertFeature.run(feat.ground_id, feat.feature_name, null, feat.category);
+        featuresAdded++;
+      }
     }
 
     res.json({
@@ -128,8 +116,8 @@ router.post('/migrate-ground-data', (req, res) => {
       message: 'Migration completed successfully',
       details: {
         categories: 'Updated for grounds 1-4',
-        images: `Added ${images.count === 0 ? 10 : 0} gallery images`,
-        features: `Added ${features.count === 0 ? 31 : 0} amenities and features`,
+        images: `Added ${imagesAdded} gallery images`,
+        features: `Added ${featuresAdded} amenities and features`,
       },
     });
   } catch (error) {

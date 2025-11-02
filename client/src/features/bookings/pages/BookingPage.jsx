@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../../config.js';
 import { useAuth } from '../../../contexts/AuthContext.jsx';
-import { formatCurrency } from '../../../utils/currencyHelper.js';
 import '../../../App.css';
 
 const API_ROOT = API_BASE_URL.replace(/\/$/, '');
@@ -45,9 +44,6 @@ function BookingPage() {
   const [serverMessage, setServerMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState('');
-  const [playerCount, setPlayerCount] = useState('11');
-  const [bookingDuration, setBookingDuration] = useState('1');
-  const [additionalNotes, setAdditionalNotes] = useState('');
   const [profile, setProfile] = useState(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -904,100 +900,14 @@ function BookingPage() {
                 </div>
               </div>
 
-              <div className="booking-panel__section booking-panel__section--card">
-                <div className="booking-options booking-options--sporty">
-                  <div className="booking-option">
-                    <label className="form-field">
-                      <span>Players</span>
-                      <select
-                        value={playerCount}
-                        onChange={(e) => setPlayerCount(e.target.value)}
-                      >
-                        <option value="1">1 player</option>
-                        <option value="5">5 players</option>
-                        <option value="6">6 players</option>
-                        <option value="7">7 players</option>
-                        <option value="8">8 players</option>
-                        <option value="9">9 players</option>
-                        <option value="10">10 players</option>
-                        <option value="11">11 players</option>
-                        <option value="12">12 players</option>
-                      </select>
-                    </label>
-                  </div>
-
-                  <div className="booking-option">
-                    <label className="form-field">
-                      <span>Duration (hours)</span>
-                      <select
-                        value={bookingDuration}
-                        onChange={(e) => setBookingDuration(e.target.value)}
-                      >
-                        <option value="0.5">30 minutes</option>
-                        <option value="1">1 hour</option>
-                        <option value="1.5">1.5 hours</option>
-                        <option value="2">2 hours</option>
-                        <option value="2.5">2.5 hours</option>
-                        <option value="3">3 hours</option>
-                      </select>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="booking-panel__section booking-panel__section--card">
-                <label className="form-field">
-                  <span>Additional notes (optional)</span>
-                  <textarea
-                    value={additionalNotes}
-                    onChange={(e) => setAdditionalNotes(e.target.value)}
-                    placeholder="Any special requirements? E.g., need changing rooms, parking, etc."
-                    rows="3"
-                    maxLength="200"
-                  />
-                  <span className="char-count">{additionalNotes.length}/200</span>
-                </label>
-              </div>
-
-              <div className="booking-panel__section booking-panel__section--card">
-                <div className="booking-summary booking-summary--sporty">
-                  <h3>Booking Summary</h3>
-                  <div className="summary-row">
-                    <span className="summary-label">Ground</span>
-                    <span className="summary-value">{selectedGround.name}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span className="summary-label">Date & Time</span>
-                    <span className="summary-value">
-                      {selectedDate ? new Date(selectedDate).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' }) : '—'} at {selectedSlot || '—'}
-                    </span>
-                  </div>
-                  <div className="summary-row">
-                    <span className="summary-label">Players</span>
-                    <span className="summary-value">{playerCount}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span className="summary-label">Duration</span>
-                    <span className="summary-value">{bookingDuration} hour{bookingDuration !== '1' ? 's' : ''}</span>
-                  </div>
-                  <div className="summary-divider"></div>
-                  <div className="summary-row summary-row--total">
-                    <span className="summary-label">Total Cost</span>
-                    <span className="summary-value summary-value--highlight">
-                      {formatCurrency(selectedGround.pricePerHour * parseFloat(bookingDuration))}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
               <div className="booking-panel__section booking-panel__section--submit">
                 <form className="booking-form booking-form--sporty" onSubmit={handleSubmit}>
                   <button
                     className="primary-button primary-button--sporty"
                     type="submit"
-                    disabled={isSubmitting || !selectedSlot || !selectedDate}
+                    disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Processing...' : `Confirm Booking • ${formatCurrency(selectedGround.pricePerHour * parseFloat(bookingDuration))}`}
+                    {isSubmitting ? 'Booking...' : 'Book Now'}
                   </button>
                 </form>
               </div>

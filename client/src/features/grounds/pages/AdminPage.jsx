@@ -379,6 +379,96 @@ function AdminPage() {
     }
   }, [authorizedFetch, handleAuthFailure]);
 
+  const loadAdmins = useCallback(async () => {
+    try {
+      setAdminsLoading(true);
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/admins`);
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Unable to load admin users.');
+      }
+      const data = await response.json();
+      setAdmins(data.admins || []);
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not load admin users.');
+      setAdmins([]);
+    } finally {
+      setAdminsLoading(false);
+    }
+  }, [authorizedFetch, handleAuthFailure, showFlash]);
+
+  const createAdmin = useCallback(async (event) => {
+    event.preventDefault();
+
+    if (!newAdminEmail.trim()) {
+      showFlash('error', 'Email is required');
+      return;
+    }
+
+    setAdminFormBusy(true);
+    try {
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/admins`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: newAdminEmail.trim(),
+          name: newAdminName.trim() || null,
+        }),
+      });
+
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to create admin user');
+      }
+
+      const newAdmin = await response.json();
+      setAdmins((prev) => [newAdmin, ...prev]);
+      setNewAdminEmail('');
+      setNewAdminName('');
+      showFlash('success', 'Admin user created successfully');
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not create admin user');
+    } finally {
+      setAdminFormBusy(false);
+    }
+  }, [authorizedFetch, handleAuthFailure, showFlash, newAdminEmail, newAdminName]);
+
+  const deleteAdmin = useCallback(async (adminId, adminEmail) => {
+    if (!window.confirm(`Remove admin access for ${adminEmail}? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await authorizedFetch(`${API_BASE_URL}/api/admin/admins/${adminId}`, {
+        method: 'DELETE',
+      });
+
+      if (await handleAuthFailure(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to delete admin user');
+      }
+
+      setAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
+      showFlash('success', 'Admin user removed successfully');
+    } catch (error) {
+      console.error(error);
+      showFlash('error', error.message || 'Could not delete admin user');
+    }
+  }, [authorizedFetch, handleAuthFailure, showFlash]);
+
   useEffect(() => {
     let active = true;
 
@@ -443,6 +533,12 @@ function AdminPage() {
       loadStats();
     }
   }, [isAdmin, activeTab, loadStats]);
+
+  useEffect(() => {
+    if (isAdmin && activeTab === 'admins') {
+      loadAdmins();
+    }
+  }, [isAdmin, activeTab, loadAdmins]);
 
   useEffect(() => {
     if (user) {
@@ -2195,6 +2291,119 @@ function AdminPage() {
                   )}
                 </section>
               </>
+            )}
+
+            {activeTab === 'admins' && (
+              <section className="admin-card admin-card--sporty">
+                <h2>Admin account management</h2>
+                <p className="admin-card__description">
+                  Manage admin users who have full access to the admin panel.
+                </p>
+
+                <form className="admin-form admin-form--sporty" onSubmit={createAdmin}>
+                  <div className="admin-form__row">
+                    <label>
+                      Email address
+                      <input
+                        type="email"
+                        required
+                        value={newAdminEmail}
+                        onChange={(e) => setNewAdminEmail(e.target.value)}
+                        placeholder="admin@example.com"
+                        disabled={adminFormBusy}
+                      />
+                    </label>
+                    <label>
+                      Name (optional)
+                      <input
+                        type="text"
+                        value={newAdminName}
+                        onChange={(e) => setNewAdminName(e.target.value)}
+                        placeholder="John Doe"
+                        disabled={adminFormBusy}
+                      />
+                    </label>
+                  </div>
+                  <button
+                    type="submit"
+                    className="primary-button primary-button--sporty"
+                    disabled={adminFormBusy}
+                  >
+                    {adminFormBusy ? 'Creating...' : 'Add admin user'}
+                  </button>
+                </form>
+
+                <div className="stats-table" style={{ marginTop: '2rem' }}>
+                  <div className="stats-table__header">
+                    <h3>Current admin users</h3>
+                    <span className="stats-table__caption">
+                      {admins.length} {admins.length === 1 ? 'admin' : 'admins'}
+                    </span>
+                  </div>
+                  {adminsLoading ? (
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                      <span className="status">Loading admin users...</span>
+                    </div>
+                  ) : (
+                    <table>
+                      <thead>
+                        <tr>
+                          <th align="left">Email</th>
+                          <th align="left">Name</th>
+                          <th align="left">Created</th>
+                          <th align="left">Added by</th>
+                          <th align="right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {admins.map((admin) => (
+                          <tr key={admin.id}>
+                            <td>
+                              <strong>{admin.email}</strong>
+                              {admin.email === user?.email && (
+                                <span className="badge badge--info" style={{ marginLeft: '0.5rem' }}>
+                                  You
+                                </span>
+                              )}
+                            </td>
+                            <td>{admin.name || '—'}</td>
+                            <td className="muted">
+                              {new Date(admin.created_at).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              })}
+                            </td>
+                            <td className="muted">{admin.created_by || '—'}</td>
+                            <td align="right">
+                              <button
+                                type="button"
+                                className="ghost-button ghost-button--danger"
+                                onClick={() => deleteAdmin(admin.id, admin.email)}
+                                disabled={admin.email === user?.email}
+                                title={
+                                  admin.email === user?.email
+                                    ? 'You cannot remove your own admin access'
+                                    : 'Remove admin access'
+                                }
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                        {admins.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="status status--muted">
+                              No admin users found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </section>
             )}
           </>
         )}

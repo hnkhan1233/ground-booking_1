@@ -706,7 +706,7 @@ function GroundDetailPage() {
               onClick={closeLightbox}
               aria-label="Close gallery"
             >
-              Close
+              ✕
             </button>
             {media.length > 1 && (
               <>

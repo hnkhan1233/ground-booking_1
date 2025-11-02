@@ -1982,7 +1982,7 @@
 
 .stats-tables {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1.3fr 1fr;
   gap: 1.5rem;
 }
 
@@ -2019,10 +2019,11 @@
 
 .stats-table th,
 .stats-table td {
-  padding: 0.75rem 1.3rem;
+  padding: 0.65rem 0.95rem;
   text-align: left;
-  font-size: 0.92rem;
+  font-size: 0.87rem;
   border-top: 1px solid rgba(148, 163, 184, 0.2);
+  white-space: nowrap;
 }
 
 
